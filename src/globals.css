@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  
+  --color-brand-bg: #F7F4EE;
+  --color-brand-fg: #161412;
+  --color-brand-surface: #EFE9DF;
+  --color-brand-border: #D8CEC0;
+  --color-brand-muted: #A99C8D;
+  --color-brand-espresso: #2A2521;
+  --color-brand-black: #161412;
+  --color-brand-accent: #EAE3D5; /* champagne tint */
+  --color-brand-accent-rose: #C39B8B; /* dusty rose accent */
+  
+  --animate-marquee-slow: marquee-slow 40s linear infinite;
+  --animate-marquee-slow-reverse: marquee-slow-reverse 40s linear infinite;
+  
+  @keyframes marquee-slow {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+  
+  @keyframes marquee-slow-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0%); }
+  }
+}
+
+:root {
+  --background: #F7F4EE;
+  --foreground: #161412;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom premium scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F4EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8CEC0;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A99C8D;
+}
+
+/* Hide scrollbar for utility classes */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom selection */
+::selection {
+  background-color: #2A2521;
+  color: #F7F4EE;
+}
+
+/* Lenis smooth scrolling rules */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overflow: clip;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Input floating label styling */
+.floating-label-group {
+  position: relative;
+}
+.floating-label-group input:focus ~ label,
+.floating-label-group input:not(:placeholder-shown) ~ label,
+.floating-label-group textarea:focus ~ label,
+.floating-label-group textarea:not(:placeholder-shown) ~ label {
+  top: -8px;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: #161412;
+}
