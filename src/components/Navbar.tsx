@@ -39,13 +39,21 @@ export default function Navbar() {
     { label: "Contact", href: "/contact" },
   ];
 
+  const isTransparent = pathname === "/" && !isScrolled;
+
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 w-full transition-all duration-500 ease-out ${
+        className={`fixed top-0 left-0 right-0 z-45 w-full transition-all duration-500 ease-out ${
+          pathname === "/"
+            ? (isScrolled
+                ? "bg-brand-bg/92 backdrop-blur-[6px] border-b border-brand-border/40"
+                : "bg-transparent")
+            : "bg-brand-bg/92 backdrop-blur-[6px] border-b border-brand-border/40"
+        } ${
           isScrolled
-            ? "bg-brand-bg/92 backdrop-blur-[6px] border-b border-brand-border/40 py-4 shadow-sm"
-            : "bg-transparent py-5 md:py-6"
+            ? "py-4 shadow-sm"
+            : "py-5 md:py-6"
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-4 md:px-12 flex items-center justify-between">
@@ -56,7 +64,11 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 to={link.href}
-                className="font-sans text-[11px] font-semibold uppercase tracking-widest text-brand-muted hover:text-brand-fg transition-colors duration-300"
+                className={`font-sans text-[12px] font-semibold uppercase tracking-widest transition-colors duration-300 ${
+                  isTransparent
+                    ? "text-brand-bg hover:opacity-80"
+                    : "text-brand-muted hover:text-brand-fg"
+                }`}
               >
                 {link.label}
               </Link>
@@ -66,7 +78,9 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden p-1 text-brand-fg hover:text-brand-muted transition-colors"
+            className={`md:hidden p-1 transition-colors ${
+              isTransparent ? "text-brand-bg hover:text-brand-bg/80" : "text-brand-fg hover:text-brand-muted"
+            }`}
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5 stroke-[1.25]" />
@@ -75,7 +89,9 @@ export default function Navbar() {
           {/* Center Brand Logo Wordmark */}
           <Link
             to="/"
-            className="font-serif text-lg md:text-2xl font-medium tracking-[0.25em] text-brand-espresso hover:opacity-85 transition-opacity"
+            className={`font-serif text-lg md:text-2xl font-medium tracking-[0.25em] transition-colors duration-300 hover:opacity-85 ${
+              isTransparent ? "text-brand-bg" : "text-brand-espresso"
+            }`}
           >
             AURELIE
           </Link>
@@ -84,7 +100,9 @@ export default function Navbar() {
           <div className="flex items-center gap-3 md:gap-6">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="flex items-center gap-1.5 p-1 font-sans text-[10px] font-semibold uppercase tracking-wider text-brand-muted hover:text-brand-fg transition-colors"
+              className={`flex items-center gap-1.5 p-1 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                isTransparent ? "text-brand-bg hover:opacity-80" : "text-brand-muted hover:text-brand-fg"
+              }`}
               aria-label="Search items"
             >
               <Search className="h-4 w-4 stroke-[1.25]" />
@@ -93,7 +111,9 @@ export default function Navbar() {
 
             <Link
               to="/contact"
-              className="hidden md:flex items-center gap-1.5 p-1 font-sans text-[10px] font-semibold uppercase tracking-wider text-brand-muted hover:text-brand-fg transition-colors"
+              className={`hidden md:flex items-center gap-1.5 p-1 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                isTransparent ? "text-brand-bg hover:opacity-80" : "text-brand-muted hover:text-brand-fg"
+              }`}
               aria-label="User Account"
             >
               <User className="h-4 w-4 stroke-[1.25]" />
@@ -102,7 +122,9 @@ export default function Navbar() {
 
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-1.5 p-1 font-sans text-[10px] font-semibold uppercase tracking-wider text-brand-muted hover:text-brand-fg transition-colors"
+              className={`flex items-center gap-1.5 p-1 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                isTransparent ? "text-brand-bg hover:opacity-80" : "text-brand-muted hover:text-brand-fg"
+              }`}
               aria-label="Shopping Bag"
             >
               <ShoppingBag className="h-4 w-4 stroke-[1.25]" />
@@ -167,4 +189,5 @@ export default function Navbar() {
     </>
   );
 }
+
 

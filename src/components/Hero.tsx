@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Link } from "react-router-dom";
@@ -8,6 +8,21 @@ import Marquee from "./Marquee";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+
+  const slides = [
+    "/hero-campaign-1.jpg",
+    "/hero-campaign-2.jpg",
+    "/hero-campaign-3.jpg",
+  ];
+
+  // Auto-slides every 4 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
 
   useGSAP(
     () => {
@@ -42,16 +57,31 @@ export default function Hero() {
       ref={containerRef}
       className="relative flex min-h-[85vh] md:min-h-screen w-full flex-col justify-between bg-brand-black/10 overflow-hidden"
     >
-      {/* Background Campaign Image */}
+      {/* Background Campaign Slideshow with crossfade zoom */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1614786269829-d24616faf56d?auto=format&fit=crop&w=1800&q=85"
-          alt="Aurelie Campaign Model in Warm Ivory Silhouette"
-          className="h-full w-full object-cover object-[center_35%] filter brightness-[0.88] contrast-[1.02]"
-        />
-        {/* Subtle radial overlay for typographic readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-black/40 via-transparent to-brand-black/25 z-0" />
+        {slides.map((src, idx) => (
+          <div
+            key={src}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              idx === activeSlide ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <img
+              src={src}
+              alt={`Aurelie Campaign Model ${idx + 1}`}
+              className={`h-full w-full object-cover object-[center_top] filter brightness-[0.88] contrast-[1.02] transition-transform duration-[4000ms] ease-out ${
+                idx === activeSlide ? "scale-100" : "scale-105"
+              }`}
+            />
+          </div>
+        ))}
       </div>
+
+      {/* Premium organic overlays for legibility (combines global dim, left gradient, bottom gradient, and top gradient for nav) */}
+      <div className="absolute inset-0 bg-brand-black/24 z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-brand-black/55 via-brand-black/15 to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brand-black/40 via-transparent to-brand-black/10 z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-brand-black/62 via-transparent to-transparent z-10 pointer-events-none" />
 
       {/* Spacer for sticky header overlay */}
       <div className="h-24 z-10" />
@@ -67,7 +97,7 @@ export default function Hero() {
           </h1>
 
           {/* Subtitle */}
-          <p className="hero-fade-sub font-sans text-xs md:text-sm tracking-wider leading-relaxed font-light text-brand-bg/90 max-w-sm pl-1">
+          <p className="hero-fade-sub font-sans text-xs md:text-sm tracking-wider leading-relaxed font-light text-brand-bg max-w-sm pl-1">
             Thoughtfully designed pieces for the modern woman. Silhouettes carved with intention, materials selected for comfort.
           </p>
 
@@ -88,6 +118,37 @@ export default function Hero() {
         </div>
       </div>
 
+      {/* Slide Progress Indicators (Visual refinement) */}
+      <div className="absolute right-4 md:right-12 bottom-20 md:bottom-28 z-20 flex gap-4 select-none">
+        {slides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => setActiveSlide(idx)}
+            className="group flex flex-col items-start gap-1 focus:outline-none cursor-pointer"
+            aria-label={`Go to slide ${idx + 1}`}
+          >
+            <div className="relative w-8 md:w-12 h-[1.5px] bg-brand-bg/25">
+              <div
+                className={`absolute inset-0 bg-brand-bg`}
+                style={{
+                  width: idx === activeSlide ? "100%" : "0%",
+                  transitionProperty: "width",
+                  transitionDuration: idx === activeSlide ? "4000ms" : "0ms",
+                  transitionTimingFunction: "linear",
+                }}
+              />
+            </div>
+            <span
+              className={`font-sans text-[8px] tracking-widest ${
+                idx === activeSlide ? "text-brand-bg font-semibold" : "text-brand-bg/40"
+              } transition-colors duration-300`}
+            >
+              0{idx + 1}
+            </span>
+          </button>
+        ))}
+      </div>
+
       {/* Mandatory Hero Marquee Banner at bottom */}
       <div className="relative z-10 w-full">
         <Marquee
@@ -99,4 +160,3 @@ export default function Hero() {
     </section>
   );
 }
-
