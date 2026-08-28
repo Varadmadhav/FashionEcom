@@ -1,12 +1,20 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { connectDB } from "./config/dbMongo";
 import productRoutes from "./routes/productRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import authRoutes from "./routes/authRoutes";
+import customerRoutes from "./routes/customerRoutes";
 
+// Load environment variables strictly from server/.env
 dotenv.config();
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
+// Connect to MongoDB Atlas
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,6 +52,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/customer", customerRoutes);
 
 // 404 Handler
 app.use((req: Request, res: Response) => {

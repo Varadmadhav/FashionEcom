@@ -3,7 +3,7 @@ import { getCloudinaryUrl, CloudinaryTransformOptions } from "@/utils/cloudinary
 
 export interface CloudinaryImageProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
-  src: string;
+  src?: string;
   width?: number;
   height?: number;
   crop?: CloudinaryTransformOptions["crop"];
@@ -12,9 +12,11 @@ export interface CloudinaryImageProps
   gravity?: CloudinaryTransformOptions["gravity"];
 }
 
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1614786269829-d24616faf56d?auto=format&fit=crop&w=800&q=80";
+
 /**
  * Reusable Image component that processes image sources via Cloudinary CDN.
- * Includes automatic onError fallback to original URL if CDN fetch fails.
+ * Prevents empty src attribute errors and handles image error fallbacks cleanly.
  */
 export const CloudinaryImage: React.FC<CloudinaryImageProps> = ({
   src,
@@ -30,7 +32,9 @@ export const CloudinaryImage: React.FC<CloudinaryImageProps> = ({
   onError,
   ...restProps
 }) => {
-  const optimizedSrc = getCloudinaryUrl(src, {
+  const safeSrc = src && typeof src === "string" && src.trim() !== "" ? src : FALLBACK_IMAGE;
+
+  const optimizedSrc = getCloudinaryUrl(safeSrc, {
     width,
     height,
     crop,
@@ -39,16 +43,17 @@ export const CloudinaryImage: React.FC<CloudinaryImageProps> = ({
     gravity,
   });
 
-  const [imgSrc, setImgSrc] = useState<string>(optimizedSrc);
+  const [imgSrc, setImgSrc] = useState<string>(optimizedSrc || FALLBACK_IMAGE);
 
   useEffect(() => {
-    setImgSrc(optimizedSrc);
+    setImgSrc(optimizedSrc || FALLBACK_IMAGE);
   }, [src, optimizedSrc]);
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    if (imgSrc !== src) {
-      // Fallback to original raw src if Cloudinary URL fails
-      setImgSrc(src);
+    if (imgSrc !== safeSrc) {
+      setImgSrc(safeSrc);
+    } else {
+      setImgSrc(FALLBACK_IMAGE);
     }
     if (onError) {
       onError(e);
@@ -57,8 +62,8 @@ export const CloudinaryImage: React.FC<CloudinaryImageProps> = ({
 
   return (
     <img
-      src={imgSrc}
-      alt={alt || ""}
+      src={imgSrc || FALLBACK_IMAGE}
+      alt={alt || "Product image"}
       className={className}
       loading={loading}
       onError={handleError}

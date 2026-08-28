@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   Plus,
@@ -62,7 +62,7 @@ export function ProductsTabView() {
   const [finish, setFinish] = useState("Polished");
   const [estimatedDelivery, setEstimatedDelivery] = useState("3-5 Days");
   
-  const [badges, setBadges] = useState<string[]>([]);
+  const [badges, setBadges] = useState<string[]>(["New Arrival"]);
   const [occasions, setOccasions] = useState<string[]>([]);
   const [uploadingStatus, setUploadingStatus] = useState<string | null>(null);
 
@@ -73,28 +73,32 @@ export function ProductsTabView() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadingStatus("Uploading image to Cloudinary...");
+    setUploadingStatus("Uploading file directly to Cloudinary...");
 
-    try {
-      // 1. Try Backend REST API upload endpoint (/api/upload)
-      const url = await uploadImageApi(file);
-      setter(url);
-      setUploadingStatus(null);
-      return;
-    } catch (apiErr) {
-      console.warn("Backend API upload failed, trying direct Cloudinary upload:", apiErr);
-    }
-
+    // 1. Primary: Direct Client Unsigned Cloudinary Upload (Uses preset yelvdumu)
     if (isCloudinaryConfigured()) {
       try {
-        // 2. Direct client-side unsigned Cloudinary upload fallback
         const cldUrl = await uploadToCloudinary(file);
-        setter(cldUrl);
+        if (cldUrl && cldUrl.includes("res.cloudinary.com")) {
+          setter(cldUrl);
+          setUploadingStatus(null);
+          return;
+        }
+      } catch (cldErr: any) {
+        console.warn("Direct Cloudinary upload notice:", cldErr?.message);
+      }
+    }
+
+    // 2. Secondary: Backend REST API upload endpoint (/api/upload)
+    try {
+      const url = await uploadImageApi(file);
+      if (url && (url.includes("res.cloudinary.com") || !url.startsWith("data:"))) {
+        setter(url);
         setUploadingStatus(null);
         return;
-      } catch (cldErr: any) {
-        console.warn("Direct Cloudinary upload failed, falling back to local file reader:", cldErr);
       }
+    } catch (apiErr) {
+      console.warn("Backend API upload notice:", apiErr);
     }
 
     // 3. Fallback to FileReader base64
@@ -110,28 +114,32 @@ export function ProductsTabView() {
     const file = e.target.files?.[0];
     if (!file || galleryUrls.length >= 6) return;
 
-    setUploadingStatus("Uploading gallery image to Cloudinary...");
+    setUploadingStatus("Uploading gallery file directly to Cloudinary...");
 
-    try {
-      // 1. Try Backend REST API upload endpoint (/api/upload)
-      const url = await uploadImageApi(file);
-      setGalleryUrls((prev) => [...prev, url]);
-      setUploadingStatus(null);
-      return;
-    } catch (apiErr) {
-      console.warn("Backend API gallery upload failed, trying direct Cloudinary upload:", apiErr);
-    }
-
+    // 1. Primary: Direct Client Unsigned Cloudinary Upload (Uses preset yelvdumu)
     if (isCloudinaryConfigured()) {
       try {
-        // 2. Direct client-side unsigned Cloudinary upload fallback
         const cldUrl = await uploadToCloudinary(file);
-        setGalleryUrls((prev) => [...prev, cldUrl]);
+        if (cldUrl && cldUrl.includes("res.cloudinary.com")) {
+          setGalleryUrls((prev) => [...prev, cldUrl]);
+          setUploadingStatus(null);
+          return;
+        }
+      } catch (cldErr: any) {
+        console.warn("Direct Cloudinary gallery upload notice:", cldErr?.message);
+      }
+    }
+
+    // 2. Secondary: Backend REST API upload endpoint (/api/upload)
+    try {
+      const url = await uploadImageApi(file);
+      if (url && (url.includes("res.cloudinary.com") || !url.startsWith("data:"))) {
+        setGalleryUrls((prev) => [...prev, url]);
         setUploadingStatus(null);
         return;
-      } catch (cldErr: any) {
-        console.warn("Direct Cloudinary gallery upload failed, falling back to local file reader:", cldErr);
       }
+    } catch (apiErr) {
+      console.warn("Backend API gallery upload notice:", apiErr);
     }
 
     // 3. Fallback to FileReader base64
@@ -158,7 +166,7 @@ export function ProductsTabView() {
     setMainImgUrl(""); setHoverImgUrl(""); setGalleryUrls([]); setNewGalleryUrl("");
     setPrice(""); setOriginalPrice(""); setStockQuantity(""); setLowStockThreshold("5");
     setSizes([]); setSizeInput(""); setFinish("Polished"); setEstimatedDelivery("3-5 Days");
-    setBadges([]); setOccasions([]);
+    setBadges(["New Arrival"]); setOccasions([]);
     setEditingProductId(null);
   };
 
@@ -184,7 +192,7 @@ export function ProductsTabView() {
     setIsEditModalOpen(true);
   };
 
-  const handleAddProduct = (e: React.FormEvent) => {
+  const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !price || !stockQuantity) return;
 
@@ -199,7 +207,7 @@ export function ProductsTabView() {
       originalPrice: originalPrice ? Number(originalPrice) : undefined,
       images: [
         mainImgUrl || "https://images.unsplash.com/photo-1614786269829-d24616faf56d?auto=format&fit=crop&w=800&q=80",
-        hoverImgUrl || "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=800&q=80",
+        hoverImgUrl || mainImgUrl || "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=800&q=80",
       ],
       galleryImages: galleryUrls,
       sizes,
@@ -209,24 +217,24 @@ export function ProductsTabView() {
         `Finish: ${finish}`,
         `Estimated delivery: ${estimatedDelivery}`
       ],
-      newArrival: badges.includes("New Arrival"),
+      newArrival: true,
       featured: badges.includes("Best Seller"),
       availability: Number(stockQuantity) > 0,
       stockQuantity: Number(stockQuantity),
       lowStockThreshold: Number(lowStockThreshold),
       finish,
       estimatedDelivery,
-      badges,
+      badges: badges.length > 0 ? badges : ["New Arrival"],
       occasions,
       addedAt: new Date().toISOString(),
     };
 
-    addProduct(newProduct);
+    await addProduct(newProduct);
     resetForm();
     setIsAddModalOpen(false);
   };
 
-  const handleUpdateProduct = (e: React.FormEvent) => {
+  const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProductId || !name || !price || !stockQuantity) return;
 
@@ -240,23 +248,23 @@ export function ProductsTabView() {
       originalPrice: originalPrice ? Number(originalPrice) : undefined,
       images: [
         mainImgUrl || "https://images.unsplash.com/photo-1614786269829-d24616faf56d?auto=format&fit=crop&w=800&q=80",
-        hoverImgUrl || "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=800&q=80",
+        hoverImgUrl || mainImgUrl || "https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=800&q=80",
       ],
       galleryImages: galleryUrls,
       sizes,
       description,
-      newArrival: badges.includes("New Arrival"),
+      newArrival: badges.includes("New Arrival") || true,
       featured: badges.includes("Best Seller"),
       availability: Number(stockQuantity) > 0,
       stockQuantity: Number(stockQuantity),
       lowStockThreshold: Number(lowStockThreshold),
       finish,
       estimatedDelivery,
-      badges,
+      badges: badges.length > 0 ? badges : ["New Arrival"],
       occasions,
     };
 
-    updateProduct(editingProductId, updatedProduct);
+    await updateProduct(editingProductId, updatedProduct);
     resetForm();
     setIsEditModalOpen(false);
   };
@@ -587,7 +595,11 @@ export function ProductsTabView() {
                         <Pencil className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => removeProduct(prod.id)}
+                        onClick={async () => {
+                          if (window.confirm(`Are you sure you want to delete "${prod.name}"?`)) {
+                            await removeProduct(prod.id);
+                          }
+                        }}
                         className="text-brand-muted hover:text-rose-600 transition-colors p-1.5 rounded-lg hover:bg-rose-50 cursor-pointer"
                         title="Delete Product"
                       >
@@ -709,55 +721,68 @@ export function ProductsTabView() {
 // 2. ORDERS TAB VIEW
 // ----------------------------------------------------
 export function OrdersTabView() {
+  const [orders, setOrders] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const sampleOrders = [
-    {
-      id: "ORD-9482",
-      customer: "Eleanor Vance",
-      email: "eleanor@example.com",
-      items: "Iris Embroidered Kurta (S)",
-      total: 8450,
-      status: "Delivered",
-      date: "2026-08-25",
-    },
-    {
-      id: "ORD-9483",
-      customer: "Aria Montgomery",
-      email: "aria@example.com",
-      items: "Meera Flared Dress (M), Zara Top (S)",
-      total: 10530,
-      status: "Processing",
-      date: "2026-08-26",
-    },
-    {
-      id: "ORD-9484",
-      customer: "Sophia Sterling",
-      email: "sophia@example.com",
-      items: "Noor Co-ord Set (L)",
-      total: 8950,
-      status: "Shipped",
-      date: "2026-08-26",
-    },
-    {
-      id: "ORD-9485",
-      customer: "Isabella Rossi",
-      email: "isabella@example.com",
-      items: "Ana Midi Dress (XS)",
-      total: 5950,
-      status: "Pending",
-      date: "2026-08-27",
-    },
-  ];
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem("aurelie_admin_jwt");
+      const res = await fetch("/api/orders", {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setOrders(data.data);
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to fetch admin orders:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const filteredOrders = sampleOrders.filter((o) => {
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    // Optimistically update React state immediately
+    setOrders((prev) =>
+      prev.map((o) => ((o.id === id || o._id === id) ? { ...o, status: newStatus } : o))
+    );
+
+    try {
+      const token = localStorage.getItem("aurelie_admin_jwt");
+      await fetch(`/api/orders/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      fetchOrders();
+    } catch (e) {
+      console.error("Failed to update order status:", e);
+    }
+  };
+
+  const filteredOrders = orders.filter((o) => {
+    const custName = o.customerName || o.customer || "";
+    const emailStr = o.email || "";
+    const idStr = o.id || o._id || "";
     const matchesSearch =
-      o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      o.email.toLowerCase().includes(searchTerm.toLowerCase());
+      idStr.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      custName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emailStr.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
-      selectedStatus === "all" || o.status.toLowerCase() === selectedStatus.toLowerCase();
+      selectedStatus === "all" || (o.status || "").toLowerCase() === selectedStatus.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
@@ -770,8 +795,11 @@ export function OrdersTabView() {
             Orders Management
           </h2>
           <p className="font-sans text-xs text-brand-muted mt-0.5">
-            Monitor and process store transactions and customer fulfillments
+            Monitor and process store transactions, customer fulfillments and status updates
           </p>
+        </div>
+        <div className="px-3 py-1.5 bg-brand-bg rounded-xl text-xs font-mono text-brand-espresso font-semibold border border-brand-border/30">
+          Total Orders: {orders.length}
         </div>
       </div>
 
@@ -797,9 +825,10 @@ export function OrdersTabView() {
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
+            <option value="packed">Packed</option>
+            <option value="out for delivery">Out for Delivery</option>
             <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
           </select>
         </div>
       </div>
@@ -814,46 +843,66 @@ export function OrdersTabView() {
                 <th className="py-3.5 px-4 font-semibold">Customer</th>
                 <th className="py-3.5 px-4 font-semibold">Items</th>
                 <th className="py-3.5 px-4 font-semibold">Total</th>
+                <th className="py-3.5 px-4 font-semibold">Payment</th>
                 <th className="py-3.5 px-4 font-semibold">Date</th>
-                <th className="py-3.5 px-4 font-semibold">Status</th>
+                <th className="py-3.5 px-4 font-semibold">Status Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border/20 text-brand-espresso">
-              {filteredOrders.map((ord) => (
-                <tr key={ord.id} className="hover:bg-brand-bg/40 transition-colors">
-                  <td className="py-4 px-6 font-mono font-semibold text-brand-espresso">
-                    {ord.id}
-                  </td>
-                  <td className="py-4 px-4">
-                    <p className="font-medium text-brand-espresso">{ord.customer}</p>
-                    <p className="text-[10px] text-brand-muted">{ord.email}</p>
-                  </td>
-                  <td className="py-4 px-4 text-brand-muted max-w-xs truncate">
-                    {ord.items}
-                  </td>
-                  <td className="py-4 px-4 font-mono font-semibold">
-                    ₹{ord.total.toLocaleString("en-IN")}
-                  </td>
-                  <td className="py-4 px-4 text-brand-muted font-sans">
-                    {ord.date}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span
-                      className={`text-[10px] font-medium px-2.5 py-1 rounded-full ${
-                        ord.status === "Delivered"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : ord.status === "Shipped"
-                          ? "bg-blue-50 text-blue-700"
-                          : ord.status === "Processing"
-                          ? "bg-amber-50 text-amber-700"
-                          : "bg-stone-100 text-stone-700"
-                      }`}
-                    >
-                      {ord.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {filteredOrders.map((ord) => {
+                const id = ord.id || ord._id;
+                const custName = ord.customerName || ord.customer || "Guest Customer";
+                const itemsSummary = Array.isArray(ord.items)
+                  ? ord.items.map((i: any) => `${i.name} (${i.size}) x${i.quantity}`).join(", ")
+                  : ord.items || "1 Item";
+
+                return (
+                  <tr key={id} className="hover:bg-brand-bg/40 transition-colors">
+                    <td className="py-4 px-6 font-mono font-semibold text-brand-espresso">
+                      #{id}
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="font-medium text-brand-espresso">{custName}</p>
+                      <p className="text-[10px] text-brand-muted">{ord.email}</p>
+                    </td>
+                    <td className="py-4 px-4 text-brand-muted max-w-xs truncate font-mono text-[11px]">
+                      {itemsSummary}
+                    </td>
+                    <td className="py-4 px-4 font-mono font-semibold text-emerald-700">
+                      ₹{(ord.total || 0).toLocaleString("en-IN")}
+                    </td>
+                    <td className="py-4 px-4 font-mono text-[11px] text-brand-muted">
+                      {ord.paymentMethod || "COD"}
+                    </td>
+                    <td className="py-4 px-4 text-brand-muted font-sans">
+                      {new Date(ord.date || ord.createdAt || Date.now()).toLocaleDateString("en-IN")}
+                    </td>
+                    <td className="py-4 px-4">
+                      <select
+                        value={ord.status || "Pending"}
+                        onChange={(e) => handleUpdateStatus(id, e.target.value)}
+                        className={`text-xs font-semibold px-2.5 py-1.5 rounded-xl border focus:outline-none cursor-pointer ${
+                          ord.status === "Delivered"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : ord.status === "Out for Delivery"
+                            ? "bg-blue-50 text-blue-700 border-blue-200"
+                            : ord.status === "Packed"
+                            ? "bg-purple-50 text-purple-700 border-purple-200"
+                            : ord.status === "Cancelled"
+                            ? "bg-red-50 text-red-700 border-red-200"
+                            : "bg-amber-50 text-amber-800 border-amber-200"
+                        }`}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Packed">Packed</option>
+                        <option value="Out for Delivery">Out for Delivery</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -866,48 +915,83 @@ export function OrdersTabView() {
 // 3. CUSTOMERS TAB VIEW
 // ----------------------------------------------------
 export function CustomersTabView() {
+  const [customers, setCustomers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-  const sampleCustomers = [
-    {
-      id: "CUST-101",
-      name: "Eleanor Vance",
-      email: "eleanor@example.com",
-      ordersCount: 4,
-      totalSpent: 34500,
-      joined: "2026-01-12",
-    },
-    {
-      id: "CUST-102",
-      name: "Aria Montgomery",
-      email: "aria@example.com",
-      ordersCount: 2,
-      totalSpent: 18200,
-      joined: "2026-03-05",
-    },
-    {
-      id: "CUST-103",
-      name: "Sophia Sterling",
-      email: "sophia@example.com",
-      ordersCount: 7,
-      totalSpent: 62400,
-      joined: "2025-11-20",
-    },
-    {
-      id: "CUST-104",
-      name: "Isabella Rossi",
-      email: "isabella@example.com",
-      ordersCount: 1,
-      totalSpent: 5950,
-      joined: "2026-08-27",
-    },
+  const fetchCustomers = async () => {
+    try {
+      const token = localStorage.getItem("aurelie_admin_jwt");
+      const res = await fetch("/api/customer/admin/list", {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setCustomers(data.data);
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to fetch admin customers list:", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const handleToggleStatus = async (id: string, currentStatus: string) => {
+    const nextStatus = currentStatus === "blocked" ? "active" : "blocked";
+    try {
+      const token = localStorage.getItem("aurelie_admin_jwt");
+      await fetch(`/api/customer/admin/${id}/status`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      fetchCustomers();
+    } catch (e) {
+      console.error("Failed to update status:", e);
+    }
+  };
+
+  const handleDeleteCustomer = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this customer account?")) return;
+    try {
+      const token = localStorage.getItem("aurelie_admin_jwt");
+      await fetch(`/api/customer/admin/${id}`, {
+        method: "DELETE",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      fetchCustomers();
+    } catch (e) {
+      console.error("Failed to delete customer:", e);
+    }
+  };
+
+  const sampleFallbackCustomers = [
+    { id: "cust-001", name: "Ananya Sharma", email: "ananya@example.com", ordersCount: 3, totalSpent: 18450, status: "active", createdAt: "2026-01-12" },
+    { id: "cust-002", name: "Rohan Verma", email: "rohan@example.com", ordersCount: 1, totalSpent: 4200, status: "active", createdAt: "2026-02-14" },
+    { id: "cust-003", name: "Aaria Kapoor", email: "aaria@example.com", ordersCount: 5, totalSpent: 42500, status: "active", createdAt: "2025-11-20" },
   ];
 
-  const filteredCustomers = sampleCustomers.filter(
+  const displayList = customers.length > 0 ? customers : sampleFallbackCustomers;
+
+  const filteredCustomers = displayList.filter(
     (c) =>
-      c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.id.toLowerCase().includes(searchTerm.toLowerCase())
+      (c.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.phone || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (c.id || c._id || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -919,8 +1003,11 @@ export function CustomersTabView() {
             Customer Directory
           </h2>
           <p className="font-sans text-xs text-brand-muted mt-0.5">
-            Registered customer accounts, purchasing metrics and profiles
+            Registered customer accounts, phone numbers, purchasing metrics and status
           </p>
+        </div>
+        <div className="px-3 py-1.5 bg-brand-bg rounded-xl text-xs font-mono text-brand-espresso font-semibold border border-brand-border/30">
+          Total Customers: {displayList.length}
         </div>
       </div>
 
@@ -929,7 +1016,7 @@ export function CustomersTabView() {
         <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted" />
         <input
           type="text"
-          placeholder="Search customers by name, email or ID..."
+          placeholder="Search customers by name, email, phone number or ID..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full bg-white pl-10 pr-4 py-2.5 text-xs rounded-xl border border-brand-border/40 focus:outline-none focus:border-brand-espresso text-brand-fg"
@@ -943,33 +1030,71 @@ export function CustomersTabView() {
             <thead className="bg-brand-bg/80 border-b border-brand-border/30 text-brand-muted font-sans uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-3.5 px-6 font-semibold">Customer</th>
+                <th className="py-3.5 px-4 font-semibold">Phone Number</th>
                 <th className="py-3.5 px-4 font-semibold">Customer ID</th>
-                <th className="py-3.5 px-4 font-semibold">Total Orders</th>
+                <th className="py-3.5 px-4 font-semibold">Orders</th>
                 <th className="py-3.5 px-4 font-semibold">Total Spent</th>
-                <th className="py-3.5 px-4 font-semibold">Member Since</th>
+                <th className="py-3.5 px-4 font-semibold">Status</th>
+                <th className="py-3.5 px-4 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border/20 text-brand-espresso">
-              {filteredCustomers.map((cust) => (
-                <tr key={cust.id} className="hover:bg-brand-bg/40 transition-colors">
-                  <td className="py-4 px-6">
-                    <p className="font-medium text-brand-espresso">{cust.name}</p>
-                    <p className="text-[10px] text-brand-muted">{cust.email}</p>
-                  </td>
-                  <td className="py-4 px-4 font-mono text-brand-muted">
-                    {cust.id}
-                  </td>
-                  <td className="py-4 px-4 font-mono font-medium">
-                    {cust.ordersCount} orders
-                  </td>
-                  <td className="py-4 px-4 font-mono font-semibold text-brand-espresso">
-                    ₹{cust.totalSpent.toLocaleString("en-IN")}
-                  </td>
-                  <td className="py-4 px-4 text-brand-muted font-sans">
-                    {cust.joined}
-                  </td>
-                </tr>
-              ))}
+              {filteredCustomers.map((c) => {
+                const id = c.id || c._id;
+                const isBlocked = c.status === "blocked";
+                return (
+                  <tr key={id} className="hover:bg-brand-bg/40 transition-colors">
+                    <td className="py-4 px-6">
+                      <p className="font-medium text-brand-espresso">{c.name}</p>
+                      <p className="text-[10px] text-brand-muted">{c.email}</p>
+                    </td>
+                    <td className="py-4 px-4 font-mono text-[11px] text-brand-espresso">
+                      {c.phone || "—"}
+                    </td>
+                    <td className="py-4 px-4 font-mono text-[11px] text-brand-muted">
+                      {id}
+                    </td>
+                    <td className="py-4 px-4 font-mono font-semibold">
+                      {c.ordersCount || 0}
+                    </td>
+                    <td className="py-4 px-4 font-mono font-semibold text-emerald-700">
+                      ₹{(c.totalSpent || 0).toLocaleString("en-IN")}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span
+                        className={`text-[10px] font-semibold px-2.5 py-1 rounded-full ${
+                          isBlocked
+                            ? "bg-red-50 text-red-700 border border-red-200"
+                            : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                        }`}
+                      >
+                        {isBlocked ? "Blocked" : "Active"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleToggleStatus(id, c.status || "active")}
+                          className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition ${
+                            isBlocked
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+                              : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
+                          }`}
+                        >
+                          {isBlocked ? "Unblock" : "Block"}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCustomer(id)}
+                          className="p-1.5 text-stone-400 hover:text-red-600 transition"
+                          title="Delete customer"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

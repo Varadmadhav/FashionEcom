@@ -1,0 +1,24 @@
+[
+  {
+    "id": "cust-001",
+    "name": "Ananya Sharma",
+    "email": "ananya@example.com",
+    "passwordHash": "$2b$10$Y9IFd18iob.hWzU.hlzHrOWM2vspROawlkKE0cz/2guDQNfz9FXt2",
+    "phone": "+91 98765 43210",
+    "status": "active",
+    "ordersCount": 3,
+    "totalSpent": 18450,
+    "createdAt": "2024-01-20T10:00:00.000Z"
+  },
+  {
+    "id": "cust-002",
+    "name": "Rohan Verma",
+    "email": "rohan@example.com",
+    "passwordHash": "$2b$10$ILLndN1Cug0lztpv67D3geKp2Xv.296ZXcWghwrwESEE9oOL95zWq",
+    "phone": "+91 98123 45678",
+    "status": "active",
+    "ordersCount": 1,
+    "totalSpent": 4200,
+    "createdAt": "2024-02-14T14:30:00.000Z"
+  }
+]

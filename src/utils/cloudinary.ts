@@ -117,6 +117,7 @@ export const uploadToCloudinary = async (
   formData.append("file", fileOrBase64);
   formData.append("upload_preset", uploadPreset);
   formData.append("folder", "fashion_ecom");
+  formData.append("resource_type", "auto");
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,

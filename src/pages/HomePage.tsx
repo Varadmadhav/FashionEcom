@@ -16,11 +16,14 @@ import { useProductStore } from "@/context/ProductStoreContext";
 export default function HomePage() {
   const { getNewArrivals, allProducts } = useProductStore();
 
-  // New Arrivals: sorted by addedAt desc, persist until badge removed
-  const newInProducts = getNewArrivals();
-  const justInProducts = allProducts
-    .filter((p) => !p.badges?.includes("New Arrival") && !p.newArrival)
-    .slice(0, 6);
+  // New Arrivals & Latest Catalog items sorted dynamically by addedAt timestamp
+  const newArrivalsList = getNewArrivals();
+  const sortedCatalog = [...allProducts].sort(
+    (a, b) => new Date(b.addedAt || 0).getTime() - new Date(a.addedAt || 0).getTime()
+  );
+
+  const newInProducts = newArrivalsList.length > 0 ? newArrivalsList : sortedCatalog.slice(0, 8);
+  const justInProducts = sortedCatalog.slice(0, 8);
 
   return (
     <div className="w-full bg-brand-bg text-brand-fg">

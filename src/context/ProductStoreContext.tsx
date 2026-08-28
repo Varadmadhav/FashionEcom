@@ -22,8 +22,9 @@ const ProductStoreContext = createContext<ProductStoreContextType | undefined>(u
 const STORAGE_KEY = "aurelie_product_catalog_v2";
 
 const sanitizeProduct = (p: Product): Product => {
-  const fixUrl = (url: string) => {
-    if (!url || url.includes("1595959183075-c1d09e7e364d")) {
+  const fixUrl = (url?: string) => {
+    if (!url) return "";
+    if (url.includes("1595959183075-c1d09e7e364d")) {
       return "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80";
     }
     if (url.includes("1607990283143-e81e7a2c93ab")) {
@@ -32,10 +33,16 @@ const sanitizeProduct = (p: Product): Product => {
     return url;
   };
 
+  const img0 = fixUrl(p.images?.[0]) || "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80";
+  const img1 = fixUrl(p.images?.[1]) || img0;
+
   return {
     ...p,
-    images: [fixUrl(p.images[0]), fixUrl(p.images[1])] as [string, string],
-    galleryImages: (p.galleryImages || []).map(fixUrl),
+    images: [img0, img1] as [string, string],
+    galleryImages: (p.galleryImages || []).map((u) => fixUrl(u)).filter(Boolean),
+    addedAt: p.addedAt || new Date().toISOString(),
+    badges: p.badges || [],
+    occasions: p.occasions || [],
   };
 };
 
@@ -58,44 +65,76 @@ export const ProductStoreProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const loadFromBackend = async () => {
     try {
       const data = await fetchProducts();
+      const saved = localStorage.getItem(STORAGE_KEY);
+      let localProducts: Product[] = [];
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) localProducts = parsed.map(sanitizeProduct);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       if (data && data.length > 0) {
-        const sanitized = data.map(sanitizeProduct);
-        setAllProducts(sanitized);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+        const sanitizedBackend = data.map(sanitizeProduct);
+        // Merge backend items with local items so newly added products are never lost
+        const merged = [...sanitizedBackend];
+        for (const localP of localProducts) {
+          if (!merged.some((m) => m.id === localP.id || m.slug === localP.slug)) {
+            merged.unshift(localP);
+          }
+        }
+        setAllProducts(merged);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      } else if (localProducts.length > 0) {
+        setAllProducts(localProducts);
       }
     } catch (e) {
-      console.warn("Backend not available yet, utilizing local product store");
+      console.warn("Backend API not reachable, using local product catalog");
     }
   };
 
-  // Fetch initial live product catalog from Express API on mount
+  // Fetch live product catalog on mount
   useEffect(() => {
     loadFromBackend();
   }, []);
 
-  // Sync to local storage for offline resiliency
+  // Sync state changes to localStorage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allProducts));
+    if (allProducts.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allProducts));
+    }
   }, [allProducts]);
 
   const addProduct = async (product: Product) => {
     const sanitized = sanitizeProduct(product);
-    // Optimistic UI update
-    setAllProducts((prev) => [sanitized, ...prev]);
+    
+    // Immediate UI & LocalStorage state update
+    setAllProducts((prev) => {
+      const updated = [sanitized, ...prev.filter((p) => p.id !== sanitized.id)];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       const created = await createProductApi(sanitized);
-      setAllProducts((prev) =>
-        prev.map((p) => (p.id === sanitized.id ? sanitizeProduct(created) : p))
-      );
+      setAllProducts((prev) => {
+        const updated = prev.map((p) => (p.id === sanitized.id ? sanitizeProduct(created) : p));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        return updated;
+      });
     } catch (error) {
-      console.warn("Failed to persist new product to backend API:", error);
+      console.warn("Failed to persist new product to backend API, kept in local storage:", error);
     }
   };
 
   const removeProduct = async (id: string) => {
-    // Optimistic UI update
-    setAllProducts((prev) => prev.filter((p) => p.id !== id));
+    setAllProducts((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       await deleteProductApi(id);
@@ -105,16 +144,19 @@ export const ProductStoreProvider: React.FC<{ children: React.ReactNode }> = ({ 
   };
 
   const updateProduct = async (id: string, updates: Partial<Product>) => {
-    // Optimistic UI update
-    setAllProducts((prev) =>
-      prev.map((p) => (p.id === id ? sanitizeProduct({ ...p, ...updates }) : p))
-    );
+    setAllProducts((prev) => {
+      const updated = prev.map((p) => (p.id === id ? sanitizeProduct({ ...p, ...updates }) : p));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
 
     try {
       const updated = await updateProductApi(id, updates);
-      setAllProducts((prev) =>
-        prev.map((p) => (p.id === id ? sanitizeProduct(updated) : p))
-      );
+      setAllProducts((prev) => {
+        const list = prev.map((p) => (p.id === id ? sanitizeProduct(updated) : p));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+        return list;
+      });
     } catch (error) {
       console.warn(`Failed to update product ${id} on backend API:`, error);
     }

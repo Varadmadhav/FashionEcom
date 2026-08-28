@@ -6,6 +6,7 @@ import { useProductStore } from "@/context/ProductStoreContext";
 import { Product } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import FilterDrawer from "@/components/FilterDrawer";
+import OfferMarquee from "@/components/OfferMarquee";
 import { SlidersHorizontal, ChevronDown, Check, X, ArrowUpDown } from "lucide-react";
 
 function ShopContent() {
@@ -105,10 +106,11 @@ function ShopContent() {
       if (sortBy === "price-desc") {
         return b.price - a.price;
       }
-      if (sortBy === "newest") {
-        return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+      if (sortBy === "oldest") {
+        return new Date(a.addedAt || 0).getTime() - new Date(b.addedAt || 0).getTime();
       }
-      return 0; // featured (default DB sequence)
+      // Featured / Default: newest items first
+      return new Date(b.addedAt || 0).getTime() - new Date(a.addedAt || 0).getTime();
     });
 
   const categories = [
@@ -123,7 +125,7 @@ function ShopContent() {
   const sizes = ["XS", "S", "M", "L", "XL"];
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-fg pt-28 pb-16">
+    <div className="min-h-screen bg-brand-bg text-brand-fg pt-36 md:pt-44 pb-16">
       <div className="max-w-[1440px] mx-auto px-4 md:px-12">
         {/* Page Header */}
         <div className="py-8 text-center space-y-2 md:space-y-4">

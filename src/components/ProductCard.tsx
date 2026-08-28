@@ -8,6 +8,8 @@ import { useWishlist } from "@/context/WishlistContext";
 import { Heart, Check } from "lucide-react";
 import CloudinaryImage from "./CloudinaryImage";
 
+import { useCustomerAuth } from "@/context/CustomerAuthContext";
+
 interface ProductCardProps {
   product: Product;
   variant?: "default" | "compact" | "editorial";
@@ -16,11 +18,22 @@ interface ProductCardProps {
 export default function ProductCard({ product, variant = "default" }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { isAuthenticated, openAuthModal } = useCustomerAuth();
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [justAddedSize, setJustAddedSize] = useState<string | null>(null);
 
   const favorited = isInWishlist(product.id);
+
+  const handleWishlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      openAuthModal("login");
+      return;
+    }
+    toggleWishlist(product.id);
+  };
 
   const handleQuickAdd = (size: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -88,12 +101,8 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
 
           {/* Wishlist Button */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWishlist(product.id);
-            }}
-            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center bg-brand-bg/75 rounded-full border border-brand-border/40 text-brand-fg hover:bg-brand-bg transition-colors duration-300 shadow-sm"
+            onClick={handleWishlistToggle}
+            className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center bg-brand-bg/75 rounded-full border border-brand-border/40 text-brand-fg hover:bg-brand-bg transition-colors duration-300 shadow-sm"
           >
             <Heart
               className={`h-4 w-4 stroke-[1.25] transition-colors duration-300 ${
@@ -182,12 +191,8 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
 
           {/* Wishlist Button */}
           <button
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleWishlist(product.id);
-            }}
-            className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center bg-brand-bg/75 rounded-full border border-brand-border/40 text-brand-fg hover:bg-brand-bg transition-colors duration-300 shadow-sm"
+            onClick={handleWishlistToggle}
+            className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center bg-brand-bg/75 rounded-full border border-brand-border/40 text-brand-fg hover:bg-brand-bg transition-colors duration-300 shadow-sm"
           >
             <Heart
               className={`h-4 w-4 stroke-[1.25] transition-colors duration-300 ${
