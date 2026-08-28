@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link } from "react-router-dom";
+import CloudinaryImage from "./CloudinaryImage";
 
 export default function CampaignBanner() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,9 +75,10 @@ export default function CampaignBanner() {
           {/* Right Photographic Block */}
           <div className="w-full md:w-[60%] aspect-[4/3] md:aspect-auto relative bg-brand-surface campaign-anim">
             {/* Desktop Landscape Crop */}
-            <img
+            <CloudinaryImage
               src="https://images.unsplash.com/photo-1614786269829-d24616faf56d?auto=format&fit=crop&w=1200&q=80"
               alt="Aurelie Campaign Close-up Fabric Details"
+              width={1200}
               className="absolute inset-0 h-full w-full object-cover object-[center_35%]"
               loading="lazy"
             />

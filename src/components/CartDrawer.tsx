@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useLenis } from "lenis/react";
 import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import CloudinaryImage from "./CloudinaryImage";
 
 
 export default function CartDrawer() {
@@ -79,9 +80,10 @@ export default function CartDrawer() {
                 <div key={`${item.id}-${item.size}`} className="flex gap-4 border-b border-brand-border/40 pb-6">
                   {/* Image */}
                   <div className="relative aspect-[3/4] w-20 flex-shrink-0 bg-brand-surface overflow-hidden">
-                    <img
+                    <CloudinaryImage
                       src={item.image}
                       alt={item.name}
+                      width={300}
                       className="h-full w-full object-cover object-center"
                     />
                   </div>

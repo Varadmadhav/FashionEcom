@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ORD-9482",
+    "customer": "Eleanor Vance",
+    "email": "eleanor@example.com",
+    "items": "Iris Embroidered Kurta (S)",
+    "total": 8450,
+    "status": "Delivered",
+    "date": "2026-08-25"
+  },
+  {
+    "id": "ORD-9483",
+    "customer": "Aria Montgomery",
+    "email": "aria@example.com",
+    "items": "Meera Flared Dress (M), Zara Top (S)",
+    "total": 10530,
+    "status": "Processing",
+    "date": "2026-08-26"
+  },
+  {
+    "id": "ORD-9484",
+    "customer": "Sophia Sterling",
+    "email": "sophia@example.com",
+    "items": "Noor Co-ord Set (L)",
+    "total": 8950,
+    "status": "Shipped",
+    "date": "2026-08-26"
+  },
+  {
+    "id": "ORD-9485",
+    "customer": "Isabella Rossi",
+    "email": "isabella@example.com",
+    "items": "Ana Midi Dress (XS)",
+    "total": 5950,
+    "status": "Pending",
+    "date": "2026-08-27"
+  }
+]

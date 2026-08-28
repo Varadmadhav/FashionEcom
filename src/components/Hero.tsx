@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Link } from "react-router-dom";
 import Marquee from "./Marquee";
+import CloudinaryImage from "./CloudinaryImage";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,9 +67,10 @@ export default function Hero() {
               idx === activeSlide ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            <img
+            <CloudinaryImage
               src={src}
               alt={`Aurelie Campaign Model ${idx + 1}`}
+              width={1600}
               className={`h-full w-full object-cover object-[center_top] filter brightness-[0.88] contrast-[1.02] transition-transform duration-[4000ms] ease-out ${
                 idx === activeSlide ? "scale-100" : "scale-105"
               }`}

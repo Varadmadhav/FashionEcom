@@ -1,18 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { products as defaultProducts, Product } from "@/data/products";
+import {
+  fetchProducts,
+  createProductApi,
+  updateProductApi,
+  deleteProductApi,
+} from "@/utils/api";
 
 interface ProductStoreContextType {
   allProducts: Product[];
-  addProduct: (product: Product) => void;
-  removeProduct: (id: string) => void;
-  updateProduct: (id: string, updates: Partial<Product>) => void;
+  addProduct: (product: Product) => Promise<void>;
+  removeProduct: (id: string) => Promise<void>;
+  updateProduct: (id: string, updates: Partial<Product>) => Promise<void>;
   getProductBySlug: (slug: string) => Product | undefined;
   getNewArrivals: () => Product[];
   getRelatedProducts: (product: Product, limit?: number) => Product[];
+  refreshProducts: () => Promise<void>;
 }
 
 const ProductStoreContext = createContext<ProductStoreContextType | undefined>(undefined);
-
 const STORAGE_KEY = "aurelie_product_catalog_v2";
 
 const sanitizeProduct = (p: Product): Product => {
@@ -49,27 +55,73 @@ export const ProductStoreProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return defaultProducts.map(sanitizeProduct);
   });
 
-  // Save the complete live catalog whenever it changes
+  const loadFromBackend = async () => {
+    try {
+      const data = await fetchProducts();
+      if (data && data.length > 0) {
+        const sanitized = data.map(sanitizeProduct);
+        setAllProducts(sanitized);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sanitized));
+      }
+    } catch (e) {
+      console.warn("Backend not available yet, utilizing local product store");
+    }
+  };
+
+  // Fetch initial live product catalog from Express API on mount
+  useEffect(() => {
+    loadFromBackend();
+  }, []);
+
+  // Sync to local storage for offline resiliency
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(allProducts));
   }, [allProducts]);
 
-  const addProduct = (product: Product) => {
-    setAllProducts((prev) => [sanitizeProduct(product), ...prev]);
+  const addProduct = async (product: Product) => {
+    const sanitized = sanitizeProduct(product);
+    // Optimistic UI update
+    setAllProducts((prev) => [sanitized, ...prev]);
+
+    try {
+      const created = await createProductApi(sanitized);
+      setAllProducts((prev) =>
+        prev.map((p) => (p.id === sanitized.id ? sanitizeProduct(created) : p))
+      );
+    } catch (error) {
+      console.warn("Failed to persist new product to backend API:", error);
+    }
   };
 
-  const removeProduct = (id: string) => {
+  const removeProduct = async (id: string) => {
+    // Optimistic UI update
     setAllProducts((prev) => prev.filter((p) => p.id !== id));
+
+    try {
+      await deleteProductApi(id);
+    } catch (error) {
+      console.warn(`Failed to delete product ${id} on backend API:`, error);
+    }
   };
 
-  const updateProduct = (id: string, updates: Partial<Product>) => {
+  const updateProduct = async (id: string, updates: Partial<Product>) => {
+    // Optimistic UI update
     setAllProducts((prev) =>
       prev.map((p) => (p.id === id ? sanitizeProduct({ ...p, ...updates }) : p))
     );
+
+    try {
+      const updated = await updateProductApi(id, updates);
+      setAllProducts((prev) =>
+        prev.map((p) => (p.id === id ? sanitizeProduct(updated) : p))
+      );
+    } catch (error) {
+      console.warn(`Failed to update product ${id} on backend API:`, error);
+    }
   };
 
   const getProductBySlug = (slug: string) => {
-    return allProducts.find((p) => p.slug === slug);
+    return allProducts.find((p) => p.slug === slug || p.id === slug);
   };
 
   const getNewArrivals = () => {
@@ -94,6 +146,7 @@ export const ProductStoreProvider: React.FC<{ children: React.ReactNode }> = ({ 
         getProductBySlug,
         getNewArrivals,
         getRelatedProducts,
+        refreshProducts: loadFromBackend,
       }}
     >
       {children}

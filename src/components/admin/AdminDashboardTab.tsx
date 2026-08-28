@@ -10,6 +10,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { products } from "@/data/products";
+import CloudinaryImage from "../CloudinaryImage";
 
 export default function AdminDashboardTab() {
   const [chartTimeframe, setChartTimeframe] = useState<"Monthly" | "Weekly" | "Yearly">("Monthly");
@@ -365,9 +366,10 @@ export default function AdminDashboardTab() {
                   className="flex items-center justify-between p-2.5 hover:bg-brand-bg/60 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <img
+                    <CloudinaryImage
                       src={order.img}
                       alt={order.title}
+                      width={100}
                       className="w-10 h-10 rounded-lg object-cover bg-brand-surface border border-brand-border/30"
                     />
                     <div>
@@ -420,9 +422,10 @@ export default function AdminDashboardTab() {
                   className="flex items-center justify-between p-2 hover:bg-brand-bg/60 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <img
-                      src={item.img}
+                    <CloudinaryImage
+                      src={item.img || "https://images.unsplash.com/photo-1614786269829-d24616faf56d?auto=format&fit=crop&w=800&q=80"}
                       alt={item.title}
+                      width={100}
                       className="w-9 h-9 rounded-lg object-cover bg-brand-surface border border-brand-border/30"
                     />
                     <span className="text-xs font-medium text-brand-espresso">

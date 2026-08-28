@@ -6,6 +6,7 @@ import {
   createAdminJwt,
   verifyAdminJwt,
 } from "@/utils/adminJwt";
+import { loginAdminApi } from "@/utils/api";
 
 interface AdminAuthContextType {
   admin: AdminUser | null;
@@ -67,7 +68,27 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [token]);
 
   const login = async (email: string, pass: string) => {
-    // Check against INITIAL_ADMINS (or persistent storage)
+    try {
+      // 1. Try Express Backend API login endpoint (/api/auth/login)
+      const res = await loginAdminApi(email, pass);
+      if (res && res.token) {
+        setToken(res.token);
+        setAdmin({
+          id: "adm-001",
+          name: res.user?.name || "Store Administrator",
+          email: res.user?.email || email,
+          role: "Super Admin",
+          avatar: "SA",
+          createdAt: "2024-01-15",
+          lastActive: "Active Now",
+        });
+        return { success: true };
+      }
+    } catch (apiErr: any) {
+      console.warn("Backend API login failed, checking local credentials:", apiErr);
+    }
+
+    // 2. Check against local credentials fallback
     const storedAdminsWithPass = (() => {
       const savedPasses = localStorage.getItem("aurelie_admin_passes");
       let customMap: Record<string, string> = {};

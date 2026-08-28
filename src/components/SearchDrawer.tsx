@@ -2,10 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useSearch } from "@/context/SearchContext";
-import { products, Product } from "@/data/products";
+import { useProductStore } from "@/context/ProductStoreContext";
+import { Product } from "@/data/products";
 import { useLenis } from "lenis/react";
 import { X, Search, ArrowRight, CornerDownLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import CloudinaryImage from "./CloudinaryImage";
 
 export default function SearchDrawer() {
   const {
@@ -17,6 +19,8 @@ export default function SearchDrawer() {
     addRecentSearch,
     clearRecentSearches,
   } = useSearch();
+
+  const { allProducts } = useProductStore();
 
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -51,14 +55,14 @@ export default function SearchDrawer() {
       return;
     }
     const query = searchQuery.toLowerCase();
-    const results = products.filter(
+    const results = allProducts.filter(
       (p) =>
         p.name.toLowerCase().includes(query) ||
         p.category.toLowerCase().includes(query) ||
         p.description.toLowerCase().includes(query)
     );
     setFilteredProducts(results.slice(0, 5)); // show top 5
-  }, [searchQuery]);
+  }, [searchQuery, allProducts]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -157,9 +161,10 @@ export default function SearchDrawer() {
                       onClick={() => setIsSearchOpen(false)}
                     >
                       <div className="relative aspect-[3/4] w-12 bg-brand-surface overflow-hidden">
-                        <img
+                        <CloudinaryImage
                           src={product.images[0]}
                           alt={product.name}
+                          width={200}
                           className="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>

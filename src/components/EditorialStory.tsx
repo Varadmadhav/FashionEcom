@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Link } from "react-router-dom";
+import { getCloudinaryUrl } from "@/utils/cloudinary";
 
 export default function EditorialStory() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -96,7 +97,7 @@ export default function EditorialStory() {
         >
           <img
             ref={imgRef}
-            src="https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=1200&q=80"
+            src={getCloudinaryUrl("https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?auto=format&fit=crop&w=1200&q=80", { width: 1200 })}
             alt="Minimalistic Aurelie Campaign Shoot Details"
             className="absolute top-0 left-0 w-full h-[120%] -top-[10%] object-cover object-center scale-102"
           />

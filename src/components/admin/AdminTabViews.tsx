@@ -22,6 +22,9 @@ import { Product } from "@/data/products";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { AdminUser } from "@/utils/adminJwt";
 import { useProductStore } from "@/context/ProductStoreContext";
+import { uploadToCloudinary, isCloudinaryConfigured } from "@/utils/cloudinary";
+import { uploadImageApi } from "@/utils/api";
+import CloudinaryImage from "../CloudinaryImage";
 
 // ----------------------------------------------------
 // 1. PRODUCTS TAB VIEW
@@ -61,27 +64,83 @@ export function ProductsTabView() {
   
   const [badges, setBadges] = useState<string[]>([]);
   const [occasions, setOccasions] = useState<string[]>([]);
+  const [uploadingStatus, setUploadingStatus] = useState<string | null>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, setter: (val: string) => void) => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: (val: string) => void
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setter(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setUploadingStatus("Uploading image to Cloudinary...");
+
+    try {
+      // 1. Try Backend REST API upload endpoint (/api/upload)
+      const url = await uploadImageApi(file);
+      setter(url);
+      setUploadingStatus(null);
+      return;
+    } catch (apiErr) {
+      console.warn("Backend API upload failed, trying direct Cloudinary upload:", apiErr);
     }
+
+    if (isCloudinaryConfigured()) {
+      try {
+        // 2. Direct client-side unsigned Cloudinary upload fallback
+        const cldUrl = await uploadToCloudinary(file);
+        setter(cldUrl);
+        setUploadingStatus(null);
+        return;
+      } catch (cldErr: any) {
+        console.warn("Direct Cloudinary upload failed, falling back to local file reader:", cldErr);
+      }
+    }
+
+    // 3. Fallback to FileReader base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setter(reader.result as string);
+      setUploadingStatus(null);
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleGalleryFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && galleryUrls.length < 6) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setGalleryUrls([...galleryUrls, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
+    if (!file || galleryUrls.length >= 6) return;
+
+    setUploadingStatus("Uploading gallery image to Cloudinary...");
+
+    try {
+      // 1. Try Backend REST API upload endpoint (/api/upload)
+      const url = await uploadImageApi(file);
+      setGalleryUrls((prev) => [...prev, url]);
+      setUploadingStatus(null);
+      return;
+    } catch (apiErr) {
+      console.warn("Backend API gallery upload failed, trying direct Cloudinary upload:", apiErr);
     }
+
+    if (isCloudinaryConfigured()) {
+      try {
+        // 2. Direct client-side unsigned Cloudinary upload fallback
+        const cldUrl = await uploadToCloudinary(file);
+        setGalleryUrls((prev) => [...prev, cldUrl]);
+        setUploadingStatus(null);
+        return;
+      } catch (cldErr: any) {
+        console.warn("Direct Cloudinary gallery upload failed, falling back to local file reader:", cldErr);
+      }
+    }
+
+    // 3. Fallback to FileReader base64
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setGalleryUrls((prev) => [...prev, reader.result as string]);
+      setUploadingStatus(null);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,6 +315,11 @@ export function ProductsTabView() {
       {/* PRODUCT IMAGES */}
       <fieldset className="border border-brand-border/40 rounded-xl p-4">
         <legend className="text-[#B8860B] uppercase tracking-widest text-[11px] font-bold px-2">Product Images</legend>
+        {uploadingStatus && (
+          <div className="mb-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs flex items-center gap-2 animate-pulse">
+            <span className="font-semibold">{uploadingStatus}</span>
+          </div>
+        )}
         <div className="space-y-4">
           <div>
             <label className="block text-brand-espresso mb-1 font-semibold">Main Image (URL or Upload)</label>
@@ -268,7 +332,7 @@ export function ProductsTabView() {
             </div>
             {mainImgUrl && (
               <div className="mt-2 w-16 h-20 rounded-lg overflow-hidden border border-brand-border/40">
-                <img src={mainImgUrl} alt="Main preview" className="w-full h-full object-cover" />
+                <CloudinaryImage src={mainImgUrl} alt="Main preview" width={200} className="w-full h-full object-cover" />
               </div>
             )}
           </div>
@@ -283,7 +347,7 @@ export function ProductsTabView() {
             </div>
             {hoverImgUrl && (
               <div className="mt-2 w-16 h-20 rounded-lg overflow-hidden border border-brand-border/40">
-                <img src={hoverImgUrl} alt="Hover preview" className="w-full h-full object-cover" />
+                <CloudinaryImage src={hoverImgUrl} alt="Hover preview" width={200} className="w-full h-full object-cover" />
               </div>
             )}
           </div>
@@ -303,7 +367,7 @@ export function ProductsTabView() {
               <div className="flex gap-2 flex-wrap mt-2">
                 {galleryUrls.map((url, i) => (
                   <div key={i} className="relative w-16 h-16 rounded-lg border border-brand-border/50 overflow-hidden group">
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <CloudinaryImage src={url} alt="" width={200} className="w-full h-full object-cover" />
                     <button type="button" onClick={() => setGalleryUrls(galleryUrls.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 bg-white/80 p-0.5 rounded-full text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3" /></button>
                   </div>
                 ))}
@@ -478,9 +542,10 @@ export function ProductsTabView() {
                 <tr key={prod.id} className="hover:bg-brand-bg/40 transition-colors">
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <img
+                      <CloudinaryImage
                         src={prod.images[0]}
                         alt={prod.name}
+                        width={150}
                         className="w-11 h-11 rounded-lg object-cover bg-brand-surface border border-brand-border/30"
                       />
                       <div>

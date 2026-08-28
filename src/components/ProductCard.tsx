@@ -6,6 +6,7 @@ import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { Heart, Check } from "lucide-react";
+import CloudinaryImage from "./CloudinaryImage";
 
 interface ProductCardProps {
   product: Product;
@@ -57,17 +58,19 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
       >
         {/* Compact Image container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-surface border border-brand-border/20">
-          <img
+          <CloudinaryImage
             src={mainImage}
             alt={product.name}
+            width={800}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out ${
               isHovered ? "opacity-0 scale-102" : "opacity-100 scale-100"
             }`}
             loading="lazy"
           />
-          <img
+          <CloudinaryImage
             src={hoverImage}
             alt={`${product.name} alternate`}
+            width={800}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out ${
               isHovered ? "opacity-100 scale-100" : "opacity-0 scale-98"
             }`}
@@ -123,17 +126,19 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
       >
         {/* Editorial Image container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-surface border border-brand-border/20">
-          <img
+          <CloudinaryImage
             src={mainImage}
             alt={product.name}
+            width={800}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out ${
               isHovered ? "opacity-0 scale-103" : "opacity-100 scale-100"
             }`}
             loading="lazy"
           />
-          <img
+          <CloudinaryImage
             src={hoverImage}
             alt={`${product.name} alternate`}
+            width={800}
             className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out ${
               isHovered ? "opacity-100 scale-100" : "opacity-0 scale-97"
             }`}
@@ -216,17 +221,19 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
     >
       {/* Image container */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-surface border border-brand-border/20">
-        <img
+        <CloudinaryImage
           src={mainImage}
           alt={product.name}
+          width={800}
           className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out ${
             isHovered ? "opacity-0 scale-102" : "opacity-100 scale-100"
           }`}
           loading="lazy"
         />
-        <img
+        <CloudinaryImage
           src={hoverImage}
           alt={`${product.name} alternate`}
+          width={800}
           className={`absolute inset-0 h-full w-full object-cover object-center transition-all duration-700 ease-out ${
             isHovered ? "opacity-100 scale-100" : "opacity-0 scale-98"
           }`}

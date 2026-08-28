@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import CloudinaryImage from "./CloudinaryImage";
 
 interface JournalArticle {
   id: string;
@@ -105,9 +106,10 @@ export default function JournalSection() {
             >
               {/* Left Column: Portrait Image */}
               <div className="w-[45%] relative h-full overflow-hidden bg-brand-surface border-r border-brand-border/20">
-                <img
+                <CloudinaryImage
                   src={art.image}
                   alt={art.title}
+                  width={600}
                   className="h-full w-full object-cover object-center group-hover:scale-104 transition-transform duration-700 ease-out"
                   loading="lazy"
                 />

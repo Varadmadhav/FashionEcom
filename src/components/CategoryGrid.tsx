@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
+import CloudinaryImage from "./CloudinaryImage";
 
 interface CategoryItem {
   name: string;
@@ -45,9 +46,10 @@ export default function CategoryGrid() {
               className="group relative block aspect-[4/3] md:aspect-[3/4] overflow-hidden bg-brand-surface border border-brand-border/30 rounded-none cursor-pointer"
             >
               {/* Image with hover transition */}
-              <img
+              <CloudinaryImage
                 src={cat.image}
                 alt={`Aurelie ${cat.name} Collection`}
+                width={800}
                 className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-104"
                 loading="lazy"
               />

@@ -13,6 +13,7 @@ import {
   RotateCcw,
   Shield
 } from 'lucide-react';
+import CloudinaryImage from '@/components/CloudinaryImage';
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -85,10 +86,11 @@ const ProductDetailPage = () => {
           {/* Image Gallery */}
           <div className="flex flex-col space-y-4">
             <div className="aspect-[3/4] w-full overflow-hidden bg-brand-surface relative">
-              <img
+              <CloudinaryImage
                 key={selectedImage} // forces re-render for simple transition, though css transition is better
                 src={selectedImage}
                 alt={product.name}
+                width={1200}
                 className="w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100"
               />
             </div>
@@ -100,7 +102,7 @@ const ProductDetailPage = () => {
                   onClick={() => setSelectedImage(img)}
                   className={`flex-shrink-0 w-20 h-28 overflow-hidden border ${selectedImage === img ? 'border-brand-espresso' : 'border-transparent'} transition-colors duration-300`}
                 >
-                  <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+                  <CloudinaryImage src={img} width={200} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
