@@ -11,11 +11,16 @@ import CampaignBanner from "@/components/CampaignBanner";
 import TrustFeatures from "@/components/TrustFeatures";
 import JournalSection from "@/components/JournalSection";
 import Newsletter from "@/components/Newsletter";
-import { products } from "@/data/products";
+import { useProductStore } from "@/context/ProductStoreContext";
 
 export default function HomePage() {
-  const newInProducts = products.filter((p) => p.newArrival);
-  const justInProducts = products.filter((p) => !p.newArrival).slice(0, 6);
+  const { getNewArrivals, allProducts } = useProductStore();
+
+  // New Arrivals: sorted by addedAt desc, persist until badge removed
+  const newInProducts = getNewArrivals();
+  const justInProducts = allProducts
+    .filter((p) => !p.badges?.includes("New Arrival") && !p.newArrival)
+    .slice(0, 6);
 
   return (
     <div className="w-full bg-brand-bg text-brand-fg">

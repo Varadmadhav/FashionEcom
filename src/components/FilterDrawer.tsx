@@ -11,8 +11,6 @@ interface FilterDrawerProps {
   setSelectedCategory: (cat: string) => void;
   selectedSizes: string[];
   toggleSize: (size: string) => void;
-  selectedColors: string[];
-  toggleColor: (color: string) => void;
   priceRange: number;
   setPriceRange: (price: number) => void;
   onlyInStock: boolean;
@@ -29,8 +27,6 @@ export default function FilterDrawer({
   setSelectedCategory,
   selectedSizes,
   toggleSize,
-  selectedColors,
-  toggleColor,
   priceRange,
   setPriceRange,
   onlyInStock,
@@ -70,15 +66,6 @@ export default function FilterDrawer({
   ];
 
   const sizes = ["XS", "S", "M", "L", "XL"];
-
-  const colors = [
-    { name: "Bone Ivory", hex: "#F4F1EA" },
-    { name: "Sage", hex: "#B8C1B4" },
-    { name: "Espresso", hex: "#2A2521" },
-    { name: "Dusty Rose", hex: "#C39B8B" },
-    { name: "Oatmeal", hex: "#E5DEC9" },
-    { name: "Vanilla", hex: "#F5EFEB" },
-  ];
 
   const sortingOptions = [
     { label: "Featured", value: "featured" },
@@ -217,47 +204,6 @@ export default function FilterDrawer({
             )}
           </div>
 
-          {/* COLOR ACCORDION */}
-          <div className="border-b border-brand-border/40 py-2">
-            <button
-              onClick={() => toggleSection("color")}
-              className="flex w-full items-center justify-between py-2 text-left font-sans text-xs uppercase tracking-wider text-brand-fg font-medium"
-            >
-              <span>Colors</span>
-              <ChevronDown
-                className={`h-4 w-4 stroke-[1.25] text-brand-muted transition-transform duration-300 ${
-                  openSection === "color" ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {openSection === "color" && (
-              <div className="grid grid-cols-3 gap-2 py-3 animate-fade-in">
-                {colors.map((col) => {
-                  const active = selectedColors.includes(col.name);
-                  return (
-                    <button
-                      key={col.name}
-                      onClick={() => toggleColor(col.name)}
-                      className={`flex items-center gap-2 border px-2.5 py-2 text-left transition-all duration-300 ${
-                        active
-                          ? "border-brand-espresso bg-brand-surface/40"
-                          : "border-brand-border bg-brand-bg"
-                      }`}
-                    >
-                      <span
-                        className="h-4 w-4 rounded-full border border-brand-border flex-shrink-0"
-                        style={{ backgroundColor: col.hex }}
-                      />
-                      <span className="font-sans text-xxs uppercase tracking-wider truncate text-brand-espresso">
-                        {col.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
           {/* PRICE RANGE ACCORDION */}
           <div className="border-b border-brand-border/40 py-2">
             <button
@@ -290,7 +236,7 @@ export default function FilterDrawer({
             )}
           </div>
 
-          {/* AVAILABILITY ACCORDION */}
+          {/* AVAILABILITY TOGGLE */}
           <div className="py-2">
             <div className="flex items-center justify-between py-2">
               <span className="font-sans text-xs uppercase tracking-wider text-brand-fg font-medium">
@@ -334,4 +280,3 @@ export default function FilterDrawer({
     </div>
   );
 }
-

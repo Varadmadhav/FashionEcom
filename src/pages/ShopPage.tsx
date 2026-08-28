@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { products, Product } from "@/data/products";
+import { useProductStore } from "@/context/ProductStoreContext";
+import { Product } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import FilterDrawer from "@/components/FilterDrawer";
 import { SlidersHorizontal, ChevronDown, Check, X, ArrowUpDown } from "lucide-react";
@@ -10,6 +11,7 @@ import { SlidersHorizontal, ChevronDown, Check, X, ArrowUpDown } from "lucide-re
 function ShopContent() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { allProducts } = useProductStore();
 
   // Search parameter checks
   const categoryParam = searchParams.get("category");
@@ -19,7 +21,6 @@ function ShopContent() {
   // Filters State
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<number>(12000);
   const [onlyInStock, setOnlyInStock] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>("featured");
@@ -47,15 +48,8 @@ function ShopContent() {
     );
   };
 
-  const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
-      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
-    );
-  };
-
   const clearAllFilters = () => {
     setSelectedSizes([]);
-    setSelectedColors([]);
     setPriceRange(12000);
     setOnlyInStock(false);
     setSortBy("featured");
@@ -64,18 +58,17 @@ function ShopContent() {
 
   const hasActiveFilters =
     selectedSizes.length > 0 ||
-    selectedColors.length > 0 ||
     priceRange < 12000 ||
     onlyInStock ||
     sortBy !== "featured" ||
     searchParam !== null;
 
-  // Filtered Products computation
-  const filteredProducts = products
+  // Filtered Products computation — reads from centralized store
+  const filteredProducts = allProducts
     .filter((product) => {
       // Category tab filter
       if (selectedCategory === "new-in") {
-        if (!product.newArrival) return false;
+        if (!product.badges?.includes("New Arrival") && !product.newArrival) return false;
       } else if (selectedCategory !== "all") {
         if (product.category !== selectedCategory) return false;
       }
@@ -84,12 +77,6 @@ function ShopContent() {
       if (selectedSizes.length > 0) {
         const matchesSize = product.sizes.some((s) => selectedSizes.includes(s));
         if (!matchesSize) return false;
-      }
-
-      // Colors filter
-      if (selectedColors.length > 0) {
-        const matchesColor = product.colors.some((c) => selectedColors.includes(c.name));
-        if (!matchesColor) return false;
       }
 
       // Price limit filter
@@ -119,7 +106,7 @@ function ShopContent() {
         return b.price - a.price;
       }
       if (sortBy === "newest") {
-        return a.newArrival === b.newArrival ? 0 : a.newArrival ? -1 : 1;
+        return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
       }
       return 0; // featured (default DB sequence)
     });
@@ -134,7 +121,6 @@ function ShopContent() {
   ];
 
   const sizes = ["XS", "S", "M", "L", "XL"];
-  const colors = ["Bone Ivory", "Sage", "Espresso", "Dusty Rose", "Oatmeal", "Vanilla"];
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-fg pt-28 pb-16">
@@ -161,7 +147,13 @@ function ShopContent() {
                 key={cat.value}
                 onClick={() => {
                   setSelectedCategory(cat.value);
-                  navigate(`/shop${cat.value === "all" ? "" : `?category=${cat.value}`}`);
+                  if (cat.value === "new-in") {
+                    navigate("/shop?filter=new");
+                  } else if (cat.value === "all") {
+                    navigate("/shop");
+                  } else {
+                    navigate(`/shop?category=${cat.value}`);
+                  }
                 }}
                 className={`font-sans text-[11px] font-semibold uppercase tracking-widest relative pb-2 whitespace-nowrap snap-center transition-colors duration-300 ${
                   selectedCategory === cat.value
@@ -216,34 +208,6 @@ function ShopContent() {
                         className="flex items-center justify-between w-full text-left font-sans text-xxs uppercase tracking-wider py-1.5 text-brand-fg hover:text-brand-espresso"
                       >
                         <span>{sz}</span>
-                        {active && <Check className="h-3.5 w-3.5 stroke-[1.5] text-brand-espresso" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Colors Filter */}
-            <div className="relative">
-              <button
-                onClick={() => setActiveDropdown(activeDropdown === "color" ? null : "color")}
-                className="flex items-center gap-1.5 border border-brand-border/60 hover:border-brand-muted px-4 py-2 font-sans text-xxs uppercase tracking-wider text-brand-espresso bg-brand-bg transition-colors duration-300"
-              >
-                <span>Color</span>
-                <ChevronDown className="h-3 w-3 stroke-[1.25]" />
-              </button>
-              {activeDropdown === "color" && (
-                <div className="absolute left-0 mt-2 z-30 bg-brand-bg border border-brand-border p-4 w-52 shadow-lg space-y-2">
-                  {colors.map((col) => {
-                    const active = selectedColors.includes(col);
-                    return (
-                      <button
-                        key={col}
-                        onClick={() => toggleColor(col)}
-                        className="flex items-center justify-between w-full text-left font-sans text-xxs uppercase tracking-wider py-1.5 text-brand-fg hover:text-brand-espresso"
-                      >
-                        <span>{col}</span>
                         {active && <Check className="h-3.5 w-3.5 stroke-[1.5] text-brand-espresso" />}
                       </button>
                     );
@@ -373,18 +337,6 @@ function ShopContent() {
                 />
               </span>
             ))}
-            {selectedColors.map((col) => (
-              <span
-                key={col}
-                className="inline-flex items-center gap-1 bg-brand-surface/40 border border-brand-border/40 px-2.5 py-1 text-[10px] font-sans uppercase tracking-wider text-brand-espresso"
-              >
-                <span>Color: {col}</span>
-                <X
-                  className="h-3 w-3 stroke-[1.5] cursor-pointer hover:text-brand-fg"
-                  onClick={() => toggleColor(col)}
-                />
-              </span>
-            ))}
             {priceRange < 12000 && (
               <span className="inline-flex items-center gap-1 bg-brand-surface/40 border border-brand-border/40 px-2.5 py-1 text-[10px] font-sans uppercase tracking-wider text-brand-espresso"
               >
@@ -444,8 +396,6 @@ function ShopContent() {
         setSelectedCategory={setSelectedCategory}
         selectedSizes={selectedSizes}
         toggleSize={toggleSize}
-        selectedColors={selectedColors}
-        toggleColor={toggleColor}
         priceRange={priceRange}
         setPriceRange={setPriceRange}
         onlyInStock={onlyInStock}

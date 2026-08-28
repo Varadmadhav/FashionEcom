@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { Heart, Plus } from "lucide-react";
+import { Heart, Check } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -15,37 +16,44 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [isHovered, setIsHovered] = useState(false);
-  const [showSizes, setShowSizes] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [justAddedSize, setJustAddedSize] = useState<string | null>(null);
 
   const favorited = isInWishlist(product.id);
 
   const handleQuickAdd = (size: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setSelectedSize(size);
     addToCart({
       id: product.id,
       name: product.name,
       price: product.price,
       size: size,
-      color: product.colors[0]?.name || "Natural",
+      color: "Natural",
       image: product.images[0],
     });
-    setShowSizes(false);
+    setJustAddedSize(size);
+    setTimeout(() => {
+      setJustAddedSize(null);
+    }, 1500);
   };
 
   // Image assets
   const mainImage = product.images[0];
   const hoverImage = product.images[1] || mainImage;
 
+  // Badge display helpers
+  const hasNewArrivalBadge = product.badges?.includes("New Arrival");
+  const hasOnSaleBadge = product.badges?.includes("On Sale");
+
   if (variant === "compact") {
     return (
-      <div
+      <Link
+        to={`/product/${product.slug}`}
         className="group relative flex flex-col w-full text-brand-fg bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          setShowSizes(false);
-        }}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Compact Image container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-surface border border-brand-border/20">
@@ -101,19 +109,17 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             ₹{product.price.toLocaleString("en-IN")}
           </span>
         </div>
-      </div>
+      </Link>
     );
   }
 
   if (variant === "editorial") {
     return (
-      <div
+      <Link
+        to={`/product/${product.slug}`}
         className="group relative flex flex-col w-full text-brand-fg bg-transparent"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => {
-          setIsHovered(false);
-          setShowSizes(false);
-        }}
+        onMouseLeave={() => setIsHovered(false)}
       >
         {/* Editorial Image container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-surface border border-brand-border/20">
@@ -134,20 +140,26 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             loading="lazy"
           />
 
-          {/* Sizing Drawer Overlay on hover */}
+          {/* Direct Size Selection Drawer on Hover */}
           {product.availability && isHovered && (
-            <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-bg/95 backdrop-blur-[2px] p-4 border-t border-brand-border flex flex-col items-center gap-2 animate-fade-in-up">
-              <span className="font-sans text-[10px] uppercase tracking-widest text-brand-muted font-semibold">
-                Quick Select Size
+            <div className="absolute inset-x-0 bottom-0 z-10 bg-brand-bg/95 backdrop-blur-[2px] p-3 border-t border-brand-border flex flex-col items-center gap-1.5 animate-fade-in-up">
+              <span className="font-sans text-[9px] uppercase tracking-widest text-brand-muted font-bold">
+                {justAddedSize ? `Added Size ${justAddedSize} to Bag!` : "Select Size"}
               </span>
-              <div className="flex gap-1.5 justify-center w-full">
+              <div className="flex gap-1.5 justify-center flex-wrap w-full">
                 {product.sizes.map((sz) => (
                   <button
                     key={sz}
                     onClick={(e) => handleQuickAdd(sz, e)}
-                    className="h-8 w-9 border border-brand-border bg-brand-bg text-[10px] font-sans hover:bg-brand-espresso hover:text-brand-bg transition-all duration-200"
+                    className={`h-7 min-w-8 px-2 border text-[10px] font-sans transition-all duration-200 ${
+                      justAddedSize === sz
+                        ? "bg-emerald-800 text-white border-emerald-800"
+                        : selectedSize === sz
+                        ? "bg-brand-espresso text-brand-bg border-brand-espresso font-semibold"
+                        : "border-brand-border bg-brand-bg hover:bg-brand-espresso hover:text-brand-bg"
+                    }`}
                   >
-                    {sz}
+                    {justAddedSize === sz ? <Check className="w-3 h-3 inline" /> : sz}
                   </button>
                 ))}
               </div>
@@ -190,19 +202,17 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
             ₹{product.price.toLocaleString("en-IN")}
           </p>
         </div>
-      </div>
+      </Link>
     );
   }
 
   // Default Variant
   return (
-    <div
+    <Link
+      to={`/product/${product.slug}`}
       className="group relative flex flex-col w-full text-brand-fg bg-transparent"
       onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setShowSizes(false);
-      }}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image container */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-brand-surface border border-brand-border/20">
@@ -222,6 +232,22 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
           }`}
           loading="lazy"
         />
+
+        {/* Badge overlays (top-left) */}
+        {(hasNewArrivalBadge || hasOnSaleBadge) && (
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+            {hasNewArrivalBadge && (
+              <span className="bg-brand-espresso text-brand-bg font-sans text-[9px] font-bold uppercase tracking-widest px-2.5 py-1">
+                New
+              </span>
+            )}
+            {hasOnSaleBadge && (
+              <span className="bg-[#8B4513] text-brand-bg font-sans text-[9px] font-bold uppercase tracking-widest px-2.5 py-1">
+                Sale
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Sold out overlay */}
         {!product.availability && (
@@ -248,75 +274,45 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
           />
         </button>
 
-        {/* Quick Add Sizing Grid on Hover */}
+        {/* 1-CLICK SELECT SIZE OVERLAY ON HOVER */}
         {product.availability && (
           <div
-            className={`absolute inset-x-0 bottom-0 z-10 bg-brand-bg/95 backdrop-blur-[2px] p-4 border-t border-brand-border transition-all duration-300 flex flex-col items-center gap-2 ${
+            className={`absolute inset-x-0 bottom-0 z-10 bg-brand-bg/95 backdrop-blur-[3px] p-3 border-t border-brand-border transition-all duration-300 flex flex-col items-center gap-1.5 ${
               isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
             }`}
           >
-            {showSizes ? (
-              <>
-                <span className="font-sans text-[9px] uppercase tracking-widest text-brand-muted font-bold">
-                  Select Size
-                </span>
-                <div className="flex gap-1 justify-center w-full">
-                  {product.sizes.map((sz) => (
-                    <button
-                      key={sz}
-                      onClick={(e) => handleQuickAdd(sz, e)}
-                      className="h-7 w-8 border border-brand-border bg-brand-bg text-[9px] font-sans hover:bg-brand-espresso hover:text-brand-bg transition-all duration-150"
-                    >
-                      {sz}
-                    </button>
-                  ))}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setShowSizes(false);
-                    }}
-                    className="h-7 px-2 border border-brand-border bg-brand-bg text-[9px] font-sans hover:bg-brand-surface transition-colors duration-150 text-brand-muted"
-                  >
-                    Back
-                  </button>
-                </div>
-              </>
-            ) : (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowSizes(true);
-                }}
-                className="w-full flex items-center justify-center gap-1.5 bg-brand-espresso text-brand-bg py-2.5 text-[10px] font-medium uppercase tracking-widest hover:bg-brand-black transition-colors duration-300 font-sans"
-              >
-                <Plus className="h-3 w-3 stroke-[1.5]" />
-                <span>Quick Add</span>
-              </button>
-            )}
+            <span className="font-sans text-[9px] uppercase tracking-widest text-brand-espresso font-bold">
+              {justAddedSize ? `✓ Added Size ${justAddedSize} to Bag!` : "Quick Select Size"}
+            </span>
+            <div className="flex gap-1.5 justify-center flex-wrap w-full">
+              {product.sizes.map((sz) => (
+                <button
+                  key={sz}
+                  onClick={(e) => handleQuickAdd(sz, e)}
+                  className={`h-7 px-2.5 border text-[10px] font-sans font-medium transition-all duration-150 rounded-xs cursor-pointer ${
+                    justAddedSize === sz
+                      ? "bg-emerald-800 text-white border-emerald-800"
+                      : selectedSize === sz
+                      ? "bg-brand-espresso text-brand-bg border-brand-espresso font-semibold"
+                      : "border-brand-border bg-brand-bg text-brand-fg hover:bg-brand-espresso hover:text-brand-bg"
+                  }`}
+                  title={`Add size ${sz} to bag`}
+                >
+                  {sz}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
       {/* Main Details Panel */}
-      <div className="mt-4 flex flex-col gap-1.5 px-1">
-        {/* Title and Colors */}
+      <div className="mt-3.5 flex flex-col gap-1 px-1">
+        {/* Title */}
         <div className="flex justify-between items-start">
           <h3 className="font-sans text-xs uppercase tracking-wider text-brand-espresso font-semibold group-hover:text-brand-fg transition-colors duration-300">
             {product.name}
           </h3>
-          {/* Swatches indicator */}
-          <div className="flex gap-1 items-center">
-            {product.colors.map((c) => (
-              <span
-                key={c.name}
-                title={c.name}
-                className="h-2 w-2 rounded-full border border-brand-border/60"
-                style={{ backgroundColor: c.hex }}
-              />
-            ))}
-          </div>
         </div>
 
         {/* Category & Price */}
@@ -324,12 +320,37 @@ export default function ProductCard({ product, variant = "default" }: ProductCar
           <span className="font-serif italic text-xs text-brand-muted capitalize">
             {product.category}
           </span>
-          <span className="font-sans text-xs text-brand-espresso font-bold">
-            ₹{product.price.toLocaleString("en-IN")}
-          </span>
+          <div className="flex items-center gap-2">
+            {product.originalPrice && (
+              <span className="font-sans text-[10px] text-brand-muted line-through">
+                ₹{product.originalPrice.toLocaleString("en-IN")}
+              </span>
+            )}
+            <span className="font-sans text-xs text-brand-espresso font-bold">
+              ₹{product.price.toLocaleString("en-IN")}
+            </span>
+          </div>
         </div>
+
+        {/* Available Sizes Bar below product details */}
+        {product.sizes && product.sizes.length > 0 && (
+          <div className="flex items-center gap-1 mt-1 pt-1 border-t border-brand-border/20">
+            <span className="font-sans text-[9px] uppercase tracking-wider text-brand-muted">
+              Sizes:
+            </span>
+            <div className="flex gap-1 flex-wrap">
+              {product.sizes.map((s) => (
+                <span
+                  key={s}
+                  className="font-sans text-[9px] font-semibold text-brand-espresso bg-brand-surface/50 px-1.5 py-0.5 rounded-xs"
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </Link>
   );
 }
-

@@ -1,11 +1,50 @@
 "use client";
 
-import React from "react";
-import { Link } from "react-router-dom";
-// Social icons are represented elegantly via inline SVGs to avoid package conflicts
+import React, { useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const navigate = useNavigate();
+  
+  // Secret trigger state for 3-second hold on @2026
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [isHolding, setIsHolding] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
+
+  const startHold = () => {
+    setIsHolding(true);
+    setHoldProgress(0);
+    startTimeRef.current = Date.now();
+
+    // Update progress bar smooth every 30ms
+    intervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const progress = Math.min(100, (elapsed / 3000) * 100);
+      setHoldProgress(progress);
+    }, 30);
+
+    // After 3 seconds, redirect to Admin Page
+    timerRef.current = setTimeout(() => {
+      clearHold();
+      navigate("/admin");
+    }, 3000);
+  };
+
+  const clearHold = () => {
+    setIsHolding(false);
+    setHoldProgress(0);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
 
   const footerLinks = {
     shop: [
@@ -36,7 +75,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-brand-bg text-brand-fg border-t border-brand-border/40 pt-16 pb-8">
+    <footer className="bg-brand-bg text-brand-fg border-t border-brand-border/40 pt-16 pb-8 select-none">
       <div className="max-w-[1440px] mx-auto px-4 md:px-12">
         {/* Main Columns Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12 pb-16">
@@ -75,7 +114,6 @@ export default function Footer() {
                 className="text-brand-muted hover:text-brand-fg transition-colors duration-300"
                 aria-label="Pinterest"
               >
-                {/* Custom representation of Pinterest */}
                 <svg
                   className="h-4.5 w-4.5 fill-current"
                   viewBox="0 0 24 24"
@@ -125,7 +163,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* ABOUT & HELP Joint Column for Mobile spacing, separated on desktop */}
+          {/* ABOUT & HELP Joint Column for Mobile */}
           <div className="space-y-8 md:space-y-4">
             <div className="space-y-4">
               <h3 className="font-sans text-xxs font-bold uppercase tracking-widest text-brand-espresso">
@@ -164,7 +202,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* HELP Column (Desktop Only, hidden on mobile since it maps above) */}
+          {/* HELP Column Desktop */}
           <div className="hidden md:block space-y-4">
             <h3 className="font-sans text-xxs font-bold uppercase tracking-widest text-brand-espresso">
               Help
@@ -185,11 +223,39 @@ export default function Footer() {
 
         </div>
 
-        {/* Bottom Legal Row */}
+        {/* Bottom Legal Row with Secret 3-second hold on @2026 */}
         <div className="border-t border-brand-border/40 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="font-sans text-[10px] uppercase tracking-wider text-brand-muted">
-            &copy; {currentYear} Aurelie. All Rights Reserved.
-          </p>
+          <div className="relative inline-block">
+            <span
+              onMouseDown={startHold}
+              onMouseUp={clearHold}
+              onMouseLeave={clearHold}
+              onTouchStart={startHold}
+              onTouchEnd={clearHold}
+              className={`font-sans text-[10px] uppercase tracking-wider text-brand-muted cursor-pointer transition-colors duration-300 relative py-1 px-2 rounded-md ${
+                isHolding ? "bg-brand-surface text-brand-espresso font-semibold" : "hover:text-brand-fg"
+              }`}
+              title="Hold for 3s to access Admin Portal"
+            >
+              &copy; {currentYear} AURELIE. ALL RIGHTS RESERVED.
+              
+              {/* Animated hold progress bar fill */}
+              {isHolding && (
+                <span
+                  className="absolute bottom-0 left-0 h-[2px] bg-brand-espresso transition-all duration-75 rounded-full"
+                  style={{ width: `${holdProgress}%` }}
+                />
+              )}
+            </span>
+
+            {/* Secret status popup during hold */}
+            {isHolding && (
+              <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-brand-espresso text-brand-bg text-[9px] px-2 py-0.5 rounded shadow-lg whitespace-nowrap animate-pulse font-mono tracking-normal">
+                Verifying Admin Key... {Math.round(holdProgress)}%
+              </span>
+            )}
+          </div>
+
           <div className="flex gap-6">
             <Link
               to="/contact"
@@ -209,4 +275,3 @@ export default function Footer() {
     </footer>
   );
 }
-

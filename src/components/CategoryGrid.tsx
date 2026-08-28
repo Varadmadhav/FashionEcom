@@ -13,7 +13,7 @@ export default function CategoryGrid() {
   const categories: CategoryItem[] = [
     {
       name: "Dresses",
-      image: "https://images.unsplash.com/photo-1595959183075-c1d09e7e364d?auto=format&fit=crop&w=800&q=80",
+      image: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=800&q=80",
       href: "/shop?category=dresses",
     },
     {
