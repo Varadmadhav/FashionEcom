@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Lock, Mail, Shield, Key, ArrowRight, AlertCircle } from "lucide-react";
+import { Lock, Mail, Shield, ArrowRight, AlertCircle } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 export default function AdminLoginModal() {
   const { login } = useAdminAuth();
-  const [email, setEmail] = useState("aisha@aurelie.com");
-  const [password, setPassword] = useState("aisha2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,16 +20,10 @@ export default function AdminLoginModal() {
         setError(res.error || "Authentication failed. Please check credentials.");
       }
     } catch (err) {
-      setError("An error occurred during JWT login authentication.");
+      setError("An error occurred during login.");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleQuickFill = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setError(null);
   };
 
   return (
@@ -45,7 +39,7 @@ export default function AdminLoginModal() {
             Aurelie
           </h1>
           <p className="font-sans text-[11px] font-bold tracking-widest text-brand-muted uppercase">
-            Admin Panel Authentication
+            Admin Sign In
           </p>
         </div>
 
@@ -61,7 +55,7 @@ export default function AdminLoginModal() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1">
             <label className="block text-xs font-semibold text-brand-espresso uppercase tracking-wider">
-              Admin Email
+              Email Address
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-muted" />
@@ -98,41 +92,10 @@ export default function AdminLoginModal() {
             disabled={isSubmitting}
             className="w-full bg-[#5C1D24] text-white py-3.5 px-6 rounded-xl font-sans text-xs uppercase tracking-widest font-semibold hover:bg-[#4A151B] transition-colors flex items-center justify-center gap-2 group shadow-sm disabled:opacity-70"
           >
-            <span>{isSubmitting ? "Authenticating..." : "Authorize Admin JWT Session"}</span>
+            <span>{isSubmitting ? "Signing In..." : "Sign In"}</span>
             <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
         </form>
-
-        {/* Demo Credentials Quick-Select */}
-        <div className="pt-4 border-t border-brand-border/30 space-y-3">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted text-center">
-            Quick Demo Accounts (Click to Fill)
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickFill("aisha@aurelie.com", "aisha2026")}
-              className="text-left p-2.5 rounded-xl border border-brand-border/30 hover:border-brand-espresso/40 hover:bg-brand-bg/50 transition-colors text-xs"
-            >
-              <p className="font-semibold text-brand-espresso">Aisha Kapoor</p>
-              <p className="text-[10px] text-brand-muted">aisha@aurelie.com</p>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickFill("admin@aurelie.com", "admin2026")}
-              className="text-left p-2.5 rounded-xl border border-brand-border/30 hover:border-brand-espresso/40 hover:bg-brand-bg/50 transition-colors text-xs"
-            >
-              <p className="font-semibold text-brand-espresso">Aaditya Chauhan</p>
-              <p className="text-[10px] text-brand-muted">admin@aurelie.com</p>
-            </button>
-          </div>
-        </div>
-
-        {/* Security badge */}
-        <div className="flex items-center justify-center gap-2 text-[10px] text-brand-muted pt-2">
-          <Key className="w-3 h-3 text-emerald-600" />
-          <span>Secured with HMAC-SHA256 JWT Token Session</span>
-        </div>
 
       </div>
     </div>
