@@ -10,9 +10,11 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { products } from "@/data/products";
+import { useAdminAuth } from "@/context/AdminAuthContext";
 import CloudinaryImage from "../CloudinaryImage";
 
 export default function AdminDashboardTab() {
+  const { admin } = useAdminAuth();
   const [chartTimeframe, setChartTimeframe] = useState<"Monthly" | "Weekly" | "Yearly">("Monthly");
   const [hoveredDataPoint, setHoveredDataPoint] = useState<{
     month: string;
@@ -107,7 +109,7 @@ export default function AdminDashboardTab() {
           Wednesday, 1 July
         </p>
         <h1 className="font-serif text-3xl md:text-4xl text-brand-espresso font-normal mt-1">
-          Good morning, Aisha.
+          Good morning, {admin?.name ? admin.name.split(" ")[0] : "Admin"}.
         </h1>
         <p className="font-sans text-xs text-brand-muted mt-1">
           Here's what's happening with your store today.
