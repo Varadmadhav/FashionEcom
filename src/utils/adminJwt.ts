@@ -25,33 +25,13 @@ export interface JwtPayload {
 export const INITIAL_ADMINS: (AdminUser & { passwordHash: string })[] = [
   {
     id: "adm-001",
-    name: "Aisha Kapoor",
-    email: "aisha@aurelie.com",
+    name: "Admin",
+    email: "admin@gmail.com",
     role: "Super Admin",
-    avatar: "AK",
+    avatar: "AD",
     lastActive: "Just now",
-    createdAt: "2024-01-15",
-    passwordHash: "aisha2026", // Simulated hash match
-  },
-  {
-    id: "adm-002",
-    name: "Aaditya Chauhan",
-    email: "admin@aurelie.com",
-    role: "Super Admin",
-    avatar: "AC",
-    lastActive: "10 mins ago",
-    createdAt: "2024-02-01",
-    passwordHash: "admin2026",
-  },
-  {
-    id: "adm-003",
-    name: "Varad Madhav",
-    email: "varad@aurelie.com",
-    role: "Store Manager",
-    avatar: "VM",
-    lastActive: "2 hours ago",
-    createdAt: "2024-03-10",
-    passwordHash: "varad2026",
+    createdAt: "2026-08-30",
+    passwordHash: "admin@password098",
   },
 ];
 

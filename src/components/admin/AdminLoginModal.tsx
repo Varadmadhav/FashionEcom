@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Lock, Mail, Shield, ArrowRight, AlertCircle } from "lucide-react";
+import { Lock, Mail, Shield, ArrowRight, AlertCircle, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 
 export default function AdminLoginModal() {
   const { login } = useAdminAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +30,17 @@ export default function AdminLoginModal() {
 
   return (
     <div className="min-h-screen bg-brand-bg flex items-center justify-center p-4 select-none">
-      <div className="bg-white/90 backdrop-blur-xl max-w-md w-full rounded-3xl p-8 shadow-2xl border border-brand-border/40 space-y-8 animate-scaleUp">
+      <div className="bg-white/90 backdrop-blur-xl max-w-md w-full rounded-3xl p-8 shadow-2xl border border-brand-border/40 space-y-8 animate-scaleUp relative">
         
+        {/* Close Button */}
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-6 right-6 p-1.5 rounded-full text-brand-muted hover:text-brand-fg hover:bg-brand-bg/50 transition-colors cursor-pointer"
+          aria-label="Close"
+        >
+          <X className="w-4 h-4 stroke-[1.5]" />
+        </button>
+
         {/* Brand Logo & Title */}
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#5C1D24]/10 text-[#5C1D24] mb-2">
