@@ -220,7 +220,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu Panel */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-brand-bg text-brand-fg animate-fade-in md:hidden">
+        <div className="fixed inset-0 h-dvh z-50 flex flex-col bg-brand-bg text-brand-fg animate-fade-in md:hidden">
           {/* Mobile Header */}
           <div className="flex items-center justify-between border-b border-brand-border px-6 py-5">
             <Link
@@ -240,41 +240,42 @@ export default function Navbar() {
           </div>
 
           {/* Links Area */}
-          <nav className="flex-1 flex flex-col justify-center px-8 space-y-6">
-            {navLinks.map((link) => (
+          <nav className="flex-1 flex flex-col justify-start pt-16 px-8 space-y-8">
+            {navLinks.map((link, idx) => (
               <Link
                 key={link.label}
                 to={link.href}
-                className="font-serif text-3xl italic text-brand-espresso hover:text-brand-muted transition-colors duration-300"
+                className="group flex items-baseline gap-4 hover:opacity-85 transition-opacity"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {link.label}
+                <span className="font-sans text-[10px] tracking-widest text-brand-muted font-semibold">0{idx + 1}</span>
+                <span className="font-serif text-4xl italic text-brand-espresso">{link.label}</span>
               </Link>
             ))}
           </nav>
 
           {/* Mobile Bottom Footer with Direct Account Actions */}
-          <div className="border-t border-brand-border/60 px-8 py-6 bg-brand-surface/30 space-y-4">
+          <div className="border-t border-brand-border/40 px-8 pt-6 pb-12 space-y-4">
             {customer ? (
-              <div className="space-y-3">
-                <div className="border-b border-brand-border/40 pb-2">
+              <div className="space-y-4">
+                <div className="pb-1">
                   <p className="font-semibold text-xs text-brand-espresso">{customer.name}</p>
                   <p className="text-[10px] text-brand-muted truncate">{customer.email}</p>
                 </div>
                 <Link
                   to="/orders?tab=orders"
-                  className="flex items-center gap-3 font-sans text-xs uppercase tracking-widest font-semibold text-brand-espresso"
+                  className="flex items-center gap-3 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <ShoppingBag className="h-4 w-4 stroke-[1.5]" />
+                  <ShoppingBag className="h-4 w-4 stroke-[1.25]" />
                   <span>My Orders</span>
                 </Link>
                 <Link
                   to="/orders?tab=wishlist"
-                  className="flex items-center gap-3 font-sans text-xs uppercase tracking-widest font-semibold text-brand-espresso"
+                  className="flex items-center gap-3 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Heart className="h-4 w-4 stroke-[1.5]" />
+                  <Heart className="h-4 w-4 stroke-[1.25]" />
                   <span>My Favorites</span>
                 </Link>
                 <button
@@ -282,9 +283,9 @@ export default function Navbar() {
                     setMobileMenuOpen(false);
                     logout();
                   }}
-                  className="flex items-center gap-3 font-sans text-xs uppercase tracking-widest font-semibold text-red-600 pt-1"
+                  className="flex items-center gap-3 font-sans text-[11px] uppercase tracking-widest font-semibold text-red-600 hover:opacity-80 transition-opacity"
                 >
-                  <LogOut className="h-4 w-4 stroke-[1.5]" />
+                  <LogOut className="h-4 w-4 stroke-[1.25]" />
                   <span>Sign Out</span>
                 </button>
               </div>
@@ -294,9 +295,9 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   openAuthModal("login");
                 }}
-                className="flex items-center gap-2.5 font-sans text-xs uppercase tracking-widest font-semibold text-brand-espresso bg-brand-bg border border-brand-border/80 px-4 py-3 rounded-xl w-full justify-center"
+                className="flex items-center gap-2.5 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity cursor-pointer"
               >
-                <User className="h-4 w-4 stroke-[1.5]" />
+                <User className="h-4 w-4 stroke-[1.25]" />
                 <span>Sign In / Create Account</span>
               </button>
             )}
