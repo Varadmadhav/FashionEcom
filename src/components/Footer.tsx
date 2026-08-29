@@ -232,28 +232,10 @@ export default function Footer() {
               onMouseLeave={clearHold}
               onTouchStart={startHold}
               onTouchEnd={clearHold}
-              className={`font-sans text-[10px] uppercase tracking-wider text-brand-muted cursor-pointer transition-colors duration-300 relative py-1 px-2 rounded-md ${
-                isHolding ? "bg-brand-surface text-brand-espresso font-semibold" : "hover:text-brand-fg"
-              }`}
-              title="Hold for 3s to access Admin Portal"
+              className="font-sans text-[10px] uppercase tracking-wider text-brand-muted hover:text-brand-fg cursor-pointer transition-colors duration-300 relative py-1 px-2 rounded-md"
             >
               &copy; {currentYear} AURELIE. ALL RIGHTS RESERVED.
-              
-              {/* Animated hold progress bar fill */}
-              {isHolding && (
-                <span
-                  className="absolute bottom-0 left-0 h-[2px] bg-brand-espresso transition-all duration-75 rounded-full"
-                  style={{ width: `${holdProgress}%` }}
-                />
-              )}
             </span>
-
-            {/* Secret status popup during hold */}
-            {isHolding && (
-              <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-brand-espresso text-brand-bg text-[9px] px-2 py-0.5 rounded shadow-lg whitespace-nowrap animate-pulse font-mono tracking-normal">
-                Verifying Admin Key... {Math.round(holdProgress)}%
-              </span>
-            )}
           </div>
 
           <div className="flex gap-6">
