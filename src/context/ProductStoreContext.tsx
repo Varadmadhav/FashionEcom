@@ -19,7 +19,7 @@ interface ProductStoreContextType {
 }
 
 const ProductStoreContext = createContext<ProductStoreContextType | undefined>(undefined);
-const STORAGE_KEY = "aurelie_product_catalog_v2";
+const STORAGE_KEY = "aurelie_product_catalog_v3";
 
 const sanitizeProduct = (p: Product): Product => {
   const fixUrl = (url?: string) => {
