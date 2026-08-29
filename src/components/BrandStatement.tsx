@@ -35,7 +35,7 @@ export default function BrandStatement() {
   return (
     <section
       ref={sectionRef}
-      className="pt-12 pb-24 md:py-36 bg-brand-bg text-brand-fg border-b border-brand-border/20"
+      className="pt-6 pb-20 md:py-36 bg-brand-bg text-brand-fg border-b border-brand-border/20"
     >
       <div className="max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col md:flex-row items-start justify-between gap-8 md:gap-16">
         

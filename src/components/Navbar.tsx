@@ -132,7 +132,7 @@ export default function Navbar() {
             </button>
 
             {customer ? (
-              <div className="relative" ref={dropdownRef}>
+              <div className="relative hidden md:block" ref={dropdownRef}>
                 <button
                   onClick={() => setAccountMenuOpen((prev) => !prev)}
                   className={`flex items-center gap-1.5 p-1.5 rounded-lg font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors duration-300 ${
@@ -190,7 +190,7 @@ export default function Navbar() {
             ) : (
               <button
                 onClick={() => openAuthModal("login")}
-                className={`flex items-center gap-1.5 p-1 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors duration-300 ${
+                className={`hidden md:flex items-center gap-1.5 p-1 font-sans text-[11px] font-semibold uppercase tracking-wider transition-colors duration-300 ${
                   isTransparent ? "text-brand-bg hover:opacity-80" : "text-brand-muted hover:text-brand-fg"
                 }`}
                 aria-label="User Account"
