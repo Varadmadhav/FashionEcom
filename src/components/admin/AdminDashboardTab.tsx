@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -9,12 +9,17 @@ import {
   ArrowRight,
   ChevronDown,
 } from "lucide-react";
-import { products } from "@/data/products";
 import { useAdminAuth } from "@/context/AdminAuthContext";
+import { useProductStore } from "@/context/ProductStoreContext";
 import CloudinaryImage from "../CloudinaryImage";
 
 export default function AdminDashboardTab() {
   const { admin } = useAdminAuth();
+  const { allProducts } = useProductStore();
+  
+  const [orders, setOrders] = useState<any[]>([]);
+  const [customersCount, setCustomersCount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
   const [chartTimeframe, setChartTimeframe] = useState<"Monthly" | "Weekly" | "Yearly">("Monthly");
   const [hoveredDataPoint, setHoveredDataPoint] = useState<{
     month: string;
@@ -23,9 +28,76 @@ export default function AdminDashboardTab() {
     y: number;
   } | null>(null);
 
+  // Fetch live stats from backend API on mount
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("aurelie_admin_jwt");
+        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+        // 1. Fetch Orders
+        const ordRes = await fetch("/api/orders", { headers });
+        if (ordRes.ok) {
+          const ordData = await ordRes.json();
+          if (ordData.success && Array.isArray(ordData.data)) {
+            // Sort by order date descending
+            const sorted = ordData.data.sort(
+              (a: any, b: any) =>
+                new Date(b.date || b.createdAt || 0).getTime() -
+                new Date(a.date || a.createdAt || 0).getTime()
+            );
+            setOrders(sorted);
+          }
+        }
+
+        // 2. Fetch Customers
+        const custRes = await fetch("/api/customer/admin/list", { headers });
+        if (custRes.ok) {
+          const custData = await custRes.json();
+          if (custData.success && Array.isArray(custData.data)) {
+            setCustomersCount(custData.data.length);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to fetch dashboard metrics from API, using fallback data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, []);
+
+  // Static Mock Fallback Data (used only if database is empty)
+  const dummyRecentOrders = [
+    {
+      id: "#1534E8",
+      date: "1 Jun 2025",
+      title: "Iris Embroidered Kurta",
+      status: "Pending",
+      price: "₹8,450",
+      img: "https://images.unsplash.com/photo-1614786269829-d24616faf56d?w=100&q=80",
+    },
+    {
+      id: "#1532E1",
+      date: "31 May 2025",
+      title: "Meera Flared Dress",
+      status: "Pending",
+      price: "₹7,280",
+      img: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=100&q=80",
+    },
+  ];
+
+  const dummyLowStockItems = [
+    {
+      id: "ls-1",
+      title: "Iris Embroidered Kurta",
+      stock: 3,
+      img: "https://images.unsplash.com/photo-1614786269829-d24616faf56d?w=100&q=80",
+    },
+  ];
+
   // Revenue chart data points (mapped to SVG coordinate system)
-  // Width: 600, Height: 240
-  // Y range: 0 (5K) to 200 (0K)
   const chartData = [
     { month: "Jan", val: 1400, label: "₹1,400", x: 40, y: 150 },
     { month: "Feb", val: 2100, label: "₹2,100", x: 140, y: 120 },
@@ -35,78 +107,61 @@ export default function AdminDashboardTab() {
     { month: "Jun", val: 4276, label: "₹4,276", x: 540, y: 35 },
   ];
 
-  // SVG Smooth Bezier Path calculation
   const pathD = `M 40,150 C 90,135 90,120 140,120 C 190,120 190,140 240,140 C 290,140 290,90 340,90 C 390,90 390,65 440,65 C 490,65 490,35 540,35`;
   const areaD = `${pathD} L 540,210 L 40,210 Z`;
 
-  const recentOrders = [
-    {
-      id: "#1534E8",
-      date: "1 Jun 2025",
-      title: "Timeless Sparks Studs",
-      status: "Pending",
-      price: "₹319",
-      img: products[0]?.images[0] || "https://images.unsplash.com/photo-1614786269829-d24616faf56d?w=100&q=80",
-    },
-    {
-      id: "#1532E1",
-      date: "31 May 2025",
-      title: "Twin Heart Studs (pink)",
-      status: "Pending",
-      price: "₹269",
-      img: products[1]?.images[0] || "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=100&q=80",
-    },
-    {
-      id: "#7A3456",
-      date: "31 May 2025",
-      title: "Timeless Spark Studs",
-      status: "Pending",
-      price: "₹319",
-      img: products[2]?.images[0] || "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=100&q=80",
-    },
-    {
-      id: "#1532DD",
-      date: "30 May 2025",
-      title: "Twin Heart Studs (pink)",
-      status: "Cancelled",
-      price: "₹269",
-      img: products[3]?.images[0] || "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=100&q=80",
-    },
-  ];
+  // Compute live calculations
+  const liveRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const displayRevenue = orders.length > 0 ? liveRevenue : 4276;
+  const displayOrders = orders.length > 0 ? orders.length : 19;
+  const displayProducts = allProducts.length > 0 ? allProducts.length : 0;
+  
+  const liveLowStockCount = allProducts.filter(
+    (p) => (p.stockQuantity || 0) <= (p.lowStockThreshold || 5)
+  ).length;
+  const displayLowStockCount = allProducts.length > 0 ? liveLowStockCount : 0;
+  const displayCustomers = customersCount > 0 ? customersCount : 0;
 
-  const lowStockItems = [
-    {
-      id: "ls-1",
-      title: "Timeless Spark Studs",
-      stock: 0,
-      img: products[0]?.images[0],
-    },
-    {
-      id: "ls-2",
-      title: "Mini Twinkle Studs",
-      stock: 1,
-      img: products[1]?.images[0],
-    },
-    {
-      id: "ls-3",
-      title: "Open Heart Studs",
-      stock: 1,
-      img: products[2]?.images[0],
-    },
-    {
-      id: "ls-4",
-      title: "Sweetheart Spark Studs",
-      stock: 0,
-      img: products[3]?.images[0],
-    },
-  ];
+  // Process live arrays for UI widgets
+  const liveRecentOrders = orders.slice(0, 4).map((ord) => {
+    const id = ord.id || ord._id;
+    const itemsSummary = Array.isArray(ord.items)
+      ? ord.items.map((i: any) => i.name).join(", ")
+      : ord.items || "Order Item";
+
+    return {
+      id: `#${String(id).slice(-6).toUpperCase()}`,
+      date: new Date(ord.date || ord.createdAt || Date.now()).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+      }),
+      title: itemsSummary,
+      status: ord.status || "Pending",
+      price: `₹${(ord.total || 0).toLocaleString("en-IN")}`,
+      img: ord.items?.[0]?.image || "https://images.unsplash.com/photo-1614786269829-d24616faf56d?w=100&q=80",
+    };
+  });
+
+  const displayRecentOrders = orders.length > 0 ? liveRecentOrders : dummyRecentOrders;
+
+  const liveLowStock = allProducts
+    .filter((p) => (p.stockQuantity || 0) <= (p.lowStockThreshold || 5))
+    .slice(0, 4)
+    .map((p) => ({
+      id: p.id,
+      title: p.name,
+      stock: p.stockQuantity || 0,
+      img: p.images?.[0] || "https://images.unsplash.com/photo-1614786269829-d24616faf56d?w=100&q=80",
+    }));
+
+  const displayLowStock = liveLowStock.length > 0 ? liveLowStock : dummyLowStockItems;
 
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Greeting Header */}
       <div>
         <p className="font-sans text-xs tracking-wider text-brand-muted uppercase font-medium">
-          Wednesday, 1 July
+          Dashboard Summary
         </p>
         <h1 className="font-serif text-3xl md:text-4xl text-brand-espresso font-normal mt-1">
           Good morning, {admin?.name ? admin.name.split(" ")[0] : "Admin"}.
@@ -129,13 +184,13 @@ export default function AdminDashboardTab() {
                 Total Revenue
               </p>
               <h3 className="font-serif text-2xl md:text-3xl text-brand-espresso mt-0.5">
-                ₹4,276
+                ₹{displayRevenue.toLocaleString("en-IN")}
               </h3>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-4 text-xs font-medium text-emerald-700">
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>12.8% vs last 30 days</span>
+            <span>Live order billing</span>
           </div>
         </div>
 
@@ -150,13 +205,13 @@ export default function AdminDashboardTab() {
                 Total Orders
               </p>
               <h3 className="font-serif text-2xl md:text-3xl text-brand-espresso mt-0.5">
-                19
+                {displayOrders}
               </h3>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-4 text-xs font-medium text-emerald-700">
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>2 new orders</span>
+            <span>Lifetime count</span>
           </div>
         </div>
 
@@ -171,13 +226,13 @@ export default function AdminDashboardTab() {
                 Total Products
               </p>
               <h3 className="font-serif text-2xl md:text-3xl text-brand-espresso mt-0.5">
-                39
+                {displayProducts}
               </h3>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-4 text-xs font-medium text-amber-700">
             <TrendingDown className="w-3.5 h-3.5" />
-            <span>5 low in stock</span>
+            <span>{displayLowStockCount} low in stock</span>
           </div>
         </div>
 
@@ -192,13 +247,13 @@ export default function AdminDashboardTab() {
                 Total Customers
               </p>
               <h3 className="font-serif text-2xl md:text-3xl text-brand-espresso mt-0.5">
-                8,642
+                {displayCustomers.toLocaleString("en-IN")}
               </h3>
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-4 text-xs font-medium text-emerald-700">
             <TrendingUp className="w-3.5 h-3.5" />
-            <span>6.2% vs last 30 days</span>
+            <span>Registered users</span>
           </div>
         </div>
       </div>
@@ -221,7 +276,7 @@ export default function AdminDashboardTab() {
 
               <div className="flex items-center gap-4">
                 <span className="font-serif text-xl text-brand-espresso font-medium">
-                  ₹4,276
+                  ₹{displayRevenue.toLocaleString("en-IN")}
                 </span>
                 
                 <div className="relative">
@@ -342,10 +397,9 @@ export default function AdminDashboardTab() {
           </div>
 
           <div className="pt-6 border-t border-brand-border/20 mt-6">
-            <button className="flex items-center justify-center gap-2 bg-[#5C1D24] text-white px-6 py-3 rounded-xl font-sans text-xs uppercase tracking-wider font-semibold hover:bg-[#4A151B] transition-colors group shadow-sm">
-              <span>View full report</span>
-              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
+            <div className="flex items-center justify-center gap-2 bg-[#EFE9DF]/30 text-brand-muted px-6 py-3 rounded-xl font-sans text-xs uppercase tracking-wider font-semibold border border-brand-border/30 w-max">
+              <span>Channel: Storefront REST API</span>
+            </div>
           </div>
         </div>
 
@@ -356,15 +410,12 @@ export default function AdminDashboardTab() {
           <div className="bg-white/90 backdrop-blur-md p-6 rounded-3xl border border-brand-border/30 shadow-sm space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-xl text-brand-espresso">Recent Orders</h3>
-              <button className="text-xs font-medium text-brand-muted hover:text-brand-fg flex items-center gap-1 transition-colors">
-                View all <ArrowRight className="w-3.5 h-3.5" />
-              </button>
             </div>
 
             <div className="space-y-4">
-              {recentOrders.map((order) => (
+              {displayRecentOrders.map((order, idx) => (
                 <div
-                  key={order.id}
+                  key={order.id || idx}
                   className="flex items-center justify-between p-2.5 hover:bg-brand-bg/60 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -412,15 +463,12 @@ export default function AdminDashboardTab() {
           <div className="bg-white/90 backdrop-blur-md p-6 rounded-3xl border border-brand-border/30 shadow-sm space-y-5">
             <div className="flex items-center justify-between">
               <h3 className="font-serif text-xl text-brand-espresso">Low Stock Alert</h3>
-              <button className="text-xs font-medium text-brand-muted hover:text-brand-fg flex items-center gap-1 transition-colors">
-                View all <ArrowRight className="w-3.5 h-3.5" />
-              </button>
             </div>
 
             <div className="space-y-3.5">
-              {lowStockItems.map((item) => (
+              {displayLowStock.map((item, idx) => (
                 <div
-                  key={item.id}
+                  key={item.id || idx}
                   className="flex items-center justify-between p-2 hover:bg-brand-bg/60 rounded-xl transition-colors"
                 >
                   <div className="flex items-center gap-3">
