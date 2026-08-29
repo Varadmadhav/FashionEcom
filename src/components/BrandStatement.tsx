@@ -39,18 +39,24 @@ export default function BrandStatement() {
     >
       <div className="max-w-[1440px] mx-auto px-4 md:px-12 flex flex-col md:flex-row items-start justify-between gap-8 md:gap-16">
         
-        {/* Left column: Tiny Label */}
-        <div className="w-full md:w-1/4 statement-anim">
+        {/* Left column: Tiny Label (Visible on Mobile, Hidden on Desktop to prevent empty space) */}
+        <div className="w-full md:hidden statement-anim">
           <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.25em] text-brand-muted block">
             The Studio Viewpoint
           </span>
         </div>
 
         {/* Center/Right column: Large Statement and Paragraph */}
-        <div className="w-full md:w-3/4 max-w-2xl space-y-6 md:space-y-8">
+        <div className="w-full md:w-full md:max-w-3xl md:mx-auto md:text-center md:flex md:flex-col md:items-center space-y-6 md:space-y-8">
+          
+          {/* Tiny Label (Visible only on Desktop, Centered) */}
+          <span className="hidden md:block statement-anim font-sans text-[10px] font-semibold uppercase tracking-[0.25em] text-brand-muted">
+            The Studio Viewpoint
+          </span>
+
           <h2 className="statement-anim font-serif text-3xl md:text-5xl font-light leading-[1.1] tracking-wide text-brand-espresso">
-            DESIGNED <br />
-            TO FEEL <br />
+            DESIGNED <br className="md:hidden" />
+            TO FEEL <br className="md:hidden" />
             <span className="italic">LIKE YOU.</span>
           </h2>
           
@@ -63,4 +69,3 @@ export default function BrandStatement() {
     </section>
   );
 }
-
