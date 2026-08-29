@@ -141,7 +141,7 @@ export default function Navbar() {
                   aria-label="User Account"
                 >
                   <User className="h-4 w-4 stroke-[1.5]" />
-                  <span className="max-w-[90px] truncate">{customer.name.split(" ")[0]}</span>
+                  <span className="hidden md:inline max-w-[90px] truncate">{customer.name.split(" ")[0]}</span>
                 </button>
 
                 {/* Touch & Click Responsive Account Dropdown */}
@@ -208,7 +208,8 @@ export default function Navbar() {
               aria-label="Shopping Bag"
             >
               <ShoppingBag className="h-4 w-4 stroke-[1.25]" />
-              <span>Bag ({cartCount})</span>
+              <span className="hidden md:inline">Bag </span>
+              <span>({cartCount})</span>
             </button>
           </div>
         </div>
