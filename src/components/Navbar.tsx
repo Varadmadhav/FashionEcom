@@ -245,26 +245,26 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 to={link.href}
-                className="group flex items-baseline gap-4 hover:opacity-85 transition-opacity"
+                className="group flex items-start gap-3 hover:opacity-85 transition-opacity"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span className="font-sans text-[10px] tracking-widest text-brand-muted font-semibold">0{idx + 1}</span>
-                <span className="font-serif text-4xl italic text-brand-espresso">{link.label}</span>
+                <span className="font-sans text-[9px] tracking-widest text-brand-muted font-semibold pt-1">0{idx + 1}</span>
+                <span className="font-serif text-4xl italic text-brand-espresso leading-none">{link.label}</span>
               </Link>
             ))}
           </nav>
 
           {/* Mobile Bottom Footer with Direct Account Actions */}
-          <div className="border-t border-brand-border/40 px-8 pt-6 pb-12 space-y-4">
+          <div className="border-t border-brand-border/40 px-8 pt-6 pb-10">
             {customer ? (
-              <div className="space-y-4">
-                <div className="pb-1">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="text-center pb-1">
                   <p className="font-semibold text-xs text-brand-espresso">{customer.name}</p>
                   <p className="text-[10px] text-brand-muted truncate">{customer.email}</p>
                 </div>
                 <Link
                   to="/orders?tab=orders"
-                  className="flex items-center gap-3 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2.5 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <ShoppingBag className="h-4 w-4 stroke-[1.25]" />
@@ -272,7 +272,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   to="/orders?tab=wishlist"
-                  className="flex items-center gap-3 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2.5 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Heart className="h-4 w-4 stroke-[1.25]" />
@@ -283,7 +283,7 @@ export default function Navbar() {
                     setMobileMenuOpen(false);
                     logout();
                   }}
-                  className="flex items-center gap-3 font-sans text-[11px] uppercase tracking-widest font-semibold text-red-600 hover:opacity-80 transition-opacity"
+                  className="flex items-center gap-2.5 font-sans text-[11px] uppercase tracking-widest font-semibold text-red-600 hover:opacity-80 transition-opacity"
                 >
                   <LogOut className="h-4 w-4 stroke-[1.25]" />
                   <span>Sign Out</span>
@@ -295,7 +295,7 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   openAuthModal("login");
                 }}
-                className="flex items-center gap-2.5 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso hover:opacity-80 transition-opacity cursor-pointer"
+                className="flex items-center justify-center gap-2 px-8 py-3 rounded-full border border-brand-border/80 font-sans text-[11px] uppercase tracking-widest font-semibold text-brand-espresso bg-brand-bg hover:bg-brand-surface transition mx-auto cursor-pointer"
               >
                 <User className="h-4 w-4 stroke-[1.25]" />
                 <span>Sign In / Create Account</span>
