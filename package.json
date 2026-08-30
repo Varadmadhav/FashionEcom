@@ -13,6 +13,7 @@
     "build:frontend": "tsc && vite build",
     "build": "npm run build:server && npm run build:frontend",
     "start": "node dist-server/index.cjs",
+    "start:tsx": "npx tsx server/index.ts",
     "preview": "vite preview",
     "lint": "eslint"
   },
