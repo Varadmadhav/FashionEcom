@@ -6,12 +6,13 @@
   "scripts": {
     "dev": "vite",
     "server": "tsx server/index.ts",
-    "build:server": "esbuild server/index.ts --bundle --platform=node --format=esm --outdir=dist-server --packages=external",
-    "start": "node dist-server/index.js",
     "dev:server": "tsx watch server/index.ts",
     "dev:all": "concurrently -n \"SERVER,CLIENT\" -c \"cyan.bold,magenta.bold\" \"npm run dev:server\" \"npm run dev\"",
     "seed:cloudinary": "tsx server/scripts/seedCloudinary.ts",
-    "build": "npm run build:server && tsc && vite build",
+    "build:server": "npx esbuild server/index.ts --bundle --platform=node --format=cjs --outfile=dist-server/index.cjs --packages=external",
+    "build:frontend": "tsc && vite build",
+    "build": "npm run build:server && npm run build:frontend",
+    "start": "node dist-server/index.cjs",
     "preview": "vite preview",
     "lint": "eslint"
   },

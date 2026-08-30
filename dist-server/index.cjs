@@ -1,17 +1,51 @@
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
 // server/index.ts
-import express from "express";
-import cors from "cors";
-import dotenv2 from "dotenv";
-import path3 from "path";
+var server_exports = {};
+__export(server_exports, {
+  default: () => server_default
+});
+module.exports = __toCommonJS(server_exports);
+var import_express6 = __toESM(require("express"), 1);
+var import_cors = __toESM(require("cors"), 1);
+var import_dotenv2 = __toESM(require("dotenv"), 1);
+var import_path3 = __toESM(require("path"), 1);
 
 // server/config/dbMongo.ts
-import mongoose2 from "mongoose";
-import fs from "fs";
-import path from "path";
+var import_mongoose2 = __toESM(require("mongoose"), 1);
+var import_fs = __toESM(require("fs"), 1);
+var import_path = __toESM(require("path"), 1);
 
 // server/models/Product.ts
-import mongoose, { Schema } from "mongoose";
-var ProductSchema = new Schema(
+var import_mongoose = __toESM(require("mongoose"), 1);
+var ProductSchema = new import_mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
     slug: { type: String, required: true, unique: true, index: true },
@@ -41,7 +75,7 @@ var ProductSchema = new Schema(
     timestamps: true
   }
 );
-var Product_default = mongoose.models.Product || mongoose.model("Product", ProductSchema);
+var Product_default = import_mongoose.default.models.Product || import_mongoose.default.model("Product", ProductSchema);
 
 // src/data/products.ts
 var products = [];
@@ -54,7 +88,7 @@ var connectDB = async () => {
     return false;
   }
   try {
-    const conn = await mongoose2.connect(MONGODB_URI, {
+    const conn = await import_mongoose2.default.connect(MONGODB_URI, {
       dbName: "fashion_ecom"
     });
     console.log(`\u{1F343} MongoDB Connected: ${conn.connection.host}`);
@@ -63,12 +97,12 @@ var connectDB = async () => {
       if (count === 0) {
         console.log("\u{1F4E6} Seeding initial store catalog into MongoDB...");
         let catalogSource = products;
-        const jsonPath = path.resolve(process.cwd(), "server", "data", "products.json");
-        const altJsonPath = path.resolve(process.cwd(), "data", "products.json");
-        if (catalogSource.length === 0 && fs.existsSync(jsonPath)) {
-          catalogSource = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
-        } else if (catalogSource.length === 0 && fs.existsSync(altJsonPath)) {
-          catalogSource = JSON.parse(fs.readFileSync(altJsonPath, "utf-8"));
+        const jsonPath = import_path.default.resolve(process.cwd(), "server", "data", "products.json");
+        const altJsonPath = import_path.default.resolve(process.cwd(), "data", "products.json");
+        if (catalogSource.length === 0 && import_fs.default.existsSync(jsonPath)) {
+          catalogSource = JSON.parse(import_fs.default.readFileSync(jsonPath, "utf-8"));
+        } else if (catalogSource.length === 0 && import_fs.default.existsSync(altJsonPath)) {
+          catalogSource = JSON.parse(import_fs.default.readFileSync(altJsonPath, "utf-8"));
         }
         const seedData = catalogSource.map((p) => ({
           ...p,
@@ -94,19 +128,19 @@ var connectDB = async () => {
 };
 
 // server/routes/productRoutes.ts
-import { Router } from "express";
+var import_express = require("express");
 
 // server/controllers/productController.ts
-import mongoose3 from "mongoose";
+var import_mongoose3 = __toESM(require("mongoose"), 1);
 
 // server/config/db.ts
-import fs2 from "fs";
-import path2 from "path";
-var DATA_DIR = path2.join(process.cwd(), "server", "data");
-var PRODUCTS_FILE = path2.join(DATA_DIR, "products.json");
-var ORDERS_FILE = path2.join(DATA_DIR, "orders.json");
-if (!fs2.existsSync(DATA_DIR)) {
-  fs2.mkdirSync(DATA_DIR, { recursive: true });
+var import_fs2 = __toESM(require("fs"), 1);
+var import_path2 = __toESM(require("path"), 1);
+var DATA_DIR = import_path2.default.join(process.cwd(), "server", "data");
+var PRODUCTS_FILE = import_path2.default.join(DATA_DIR, "products.json");
+var ORDERS_FILE = import_path2.default.join(DATA_DIR, "orders.json");
+if (!import_fs2.default.existsSync(DATA_DIR)) {
+  import_fs2.default.mkdirSync(DATA_DIR, { recursive: true });
 }
 var initialOrders = [
   {
@@ -146,15 +180,15 @@ var initialOrders = [
     date: "2026-08-27"
   }
 ];
-if (!fs2.existsSync(PRODUCTS_FILE)) {
-  fs2.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+if (!import_fs2.default.existsSync(PRODUCTS_FILE)) {
+  import_fs2.default.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
 }
-if (!fs2.existsSync(ORDERS_FILE)) {
-  fs2.writeFileSync(ORDERS_FILE, JSON.stringify(initialOrders, null, 2));
+if (!import_fs2.default.existsSync(ORDERS_FILE)) {
+  import_fs2.default.writeFileSync(ORDERS_FILE, JSON.stringify(initialOrders, null, 2));
 }
 var readProductsDB = () => {
   try {
-    const data = fs2.readFileSync(PRODUCTS_FILE, "utf-8");
+    const data = import_fs2.default.readFileSync(PRODUCTS_FILE, "utf-8");
     return JSON.parse(data);
   } catch (error) {
     console.error("Error reading products DB:", error);
@@ -163,14 +197,14 @@ var readProductsDB = () => {
 };
 var writeProductsDB = (products2) => {
   try {
-    fs2.writeFileSync(PRODUCTS_FILE, JSON.stringify(products2, null, 2));
+    import_fs2.default.writeFileSync(PRODUCTS_FILE, JSON.stringify(products2, null, 2));
   } catch (error) {
     console.error("Error writing products DB:", error);
   }
 };
 var readOrdersDB = () => {
   try {
-    const data = fs2.readFileSync(ORDERS_FILE, "utf-8");
+    const data = import_fs2.default.readFileSync(ORDERS_FILE, "utf-8");
     return JSON.parse(data);
   } catch (error) {
     console.error("Error reading orders DB:", error);
@@ -179,19 +213,19 @@ var readOrdersDB = () => {
 };
 var writeOrdersDB = (orders) => {
   try {
-    fs2.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+    import_fs2.default.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
   } catch (error) {
     console.error("Error writing orders DB:", error);
   }
 };
 var readJSON = (fileName, defaultData) => {
-  const filePath = path2.join(DATA_DIR, fileName);
+  const filePath = import_path2.default.join(DATA_DIR, fileName);
   try {
-    if (!fs2.existsSync(filePath)) {
-      fs2.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
+    if (!import_fs2.default.existsSync(filePath)) {
+      import_fs2.default.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
       return defaultData;
     }
-    const data = fs2.readFileSync(filePath, "utf-8");
+    const data = import_fs2.default.readFileSync(filePath, "utf-8");
     return JSON.parse(data);
   } catch (error) {
     console.error(`Error reading ${fileName}:`, error);
@@ -199,9 +233,9 @@ var readJSON = (fileName, defaultData) => {
   }
 };
 var writeJSON = (fileName, data) => {
-  const filePath = path2.join(DATA_DIR, fileName);
+  const filePath = import_path2.default.join(DATA_DIR, fileName);
   try {
-    fs2.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    import_fs2.default.writeFileSync(filePath, JSON.stringify(data, null, 2));
   } catch (error) {
     console.error(`Error writing ${fileName}:`, error);
   }
@@ -384,7 +418,7 @@ var updateProduct = async (req, res) => {
     const id = Array.isArray(rawId) ? rawId[0] : String(rawId);
     const updates = req.body;
     try {
-      const isObjectId = typeof id === "string" && mongoose3.Types.ObjectId.isValid(id) && id.length === 24;
+      const isObjectId = typeof id === "string" && import_mongoose3.default.Types.ObjectId.isValid(id) && id.length === 24;
       const query = isObjectId ? { $or: [{ id }, { _id: id }] } : { id };
       const updated = await Product_default.findOneAndUpdate(
         query,
@@ -418,7 +452,7 @@ var deleteProduct = async (req, res) => {
     const rawId = req.params.id;
     const id = Array.isArray(rawId) ? rawId[0] : String(rawId);
     try {
-      const isObjectId = typeof id === "string" && mongoose3.Types.ObjectId.isValid(id) && id.length === 24;
+      const isObjectId = typeof id === "string" && import_mongoose3.default.Types.ObjectId.isValid(id) && id.length === 24;
       const query = isObjectId ? { $or: [{ id }, { _id: id }] } : { id };
       await Product_default.findOneAndDelete(query);
     } catch (mongoErr) {
@@ -434,7 +468,7 @@ var deleteProduct = async (req, res) => {
 };
 
 // server/middleware/authMiddleware.ts
-import jwt from "jsonwebtoken";
+var import_jsonwebtoken = __toESM(require("jsonwebtoken"), 1);
 var JWT_SECRET = process.env.JWT_SECRET || "fashion_ecom_jwt_secret_key_2026";
 var CLIENT_SECRET = "aurelie_admin_jwt_secret_key_2026";
 var authenticateAdmin = (req, res, next) => {
@@ -447,9 +481,9 @@ var authenticateAdmin = (req, res, next) => {
   try {
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
+      decoded = import_jsonwebtoken.default.verify(token, JWT_SECRET);
     } catch {
-      decoded = jwt.verify(token, CLIENT_SECRET);
+      decoded = import_jsonwebtoken.default.verify(token, CLIENT_SECRET);
     }
     req.user = decoded;
     next();
@@ -460,7 +494,7 @@ var authenticateAdmin = (req, res, next) => {
 };
 
 // server/routes/productRoutes.ts
-var router = Router();
+var router = (0, import_express.Router)();
 router.get("/", getProducts);
 router.get("/:slug", getProductBySlug);
 router.post("/", authenticateAdmin, createProduct);
@@ -469,25 +503,25 @@ router.delete("/:id", authenticateAdmin, deleteProduct);
 var productRoutes_default = router;
 
 // server/routes/uploadRoutes.ts
-import { Router as Router2 } from "express";
+var import_express2 = require("express");
 
 // server/config/cloudinary.ts
-import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
-dotenv.config();
+var import_cloudinary = require("cloudinary");
+var import_dotenv = __toESM(require("dotenv"), 1);
+import_dotenv.default.config();
 var cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.VITE_CLOUDINARY_CLOUD_NAME || "";
 var apiKey = process.env.CLOUDINARY_API_KEY || process.env.VITE_CLOUDINARY_API_KEY || "";
 var apiSecret = process.env.CLOUDINARY_API_SECRET || "";
 var isCloudinaryServerConfigured = () => {
   return Boolean(cloudName) && cloudName !== "your_cloud_name_here" && Boolean(apiKey) && apiKey !== "your_api_key_here" && Boolean(apiSecret) && apiSecret !== "your_api_secret_here";
 };
-cloudinary.config({
+import_cloudinary.v2.config({
   cloud_name: cloudName,
   api_key: apiKey,
   api_secret: apiSecret,
   secure: true
 });
-var cloudinary_default = cloudinary;
+var cloudinary_default = import_cloudinary.v2;
 
 // server/controllers/uploadController.ts
 var uploadImage = async (req, res) => {
@@ -599,8 +633,8 @@ var uploadImage = async (req, res) => {
 };
 
 // server/middleware/uploadMiddleware.ts
-import multer from "multer";
-var storage = multer.memoryStorage();
+var import_multer = __toESM(require("multer"), 1);
+var storage = import_multer.default.memoryStorage();
 var fileFilter = (_req, file, cb) => {
   const allowedMimeTypes = [
     "image/jpeg",
@@ -620,7 +654,7 @@ var fileFilter = (_req, file, cb) => {
     );
   }
 };
-var uploadMiddleware = multer({
+var uploadMiddleware = (0, import_multer.default)({
   storage,
   limits: {
     fileSize: 10 * 1024 * 1024
@@ -630,19 +664,19 @@ var uploadMiddleware = multer({
 });
 
 // server/routes/uploadRoutes.ts
-var router2 = Router2();
+var router2 = (0, import_express2.Router)();
 router2.post("/", uploadMiddleware.single("image"), uploadImage);
 var uploadRoutes_default = router2;
 
 // server/routes/orderRoutes.ts
-import { Router as Router3 } from "express";
+var import_express3 = require("express");
 
 // server/controllers/orderController.ts
-import mongoose6 from "mongoose";
+var import_mongoose6 = __toESM(require("mongoose"), 1);
 
 // server/models/Order.ts
-import mongoose4, { Schema as Schema2 } from "mongoose";
-var OrderItemSchema = new Schema2({
+var import_mongoose4 = __toESM(require("mongoose"), 1);
+var OrderItemSchema = new import_mongoose4.Schema({
   productId: { type: String, required: true },
   name: { type: String, required: true },
   size: { type: String, required: true },
@@ -650,7 +684,7 @@ var OrderItemSchema = new Schema2({
   price: { type: Number, required: true },
   image: { type: String, required: true }
 });
-var ShippingAddressSchema = new Schema2({
+var ShippingAddressSchema = new import_mongoose4.Schema({
   fullName: { type: String, required: true },
   phone: { type: String, required: true },
   street: { type: String, required: true },
@@ -658,7 +692,7 @@ var ShippingAddressSchema = new Schema2({
   state: { type: String, required: true },
   pincode: { type: String, required: true }
 });
-var OrderSchema = new Schema2(
+var OrderSchema = new import_mongoose4.Schema(
   {
     id: { type: String, required: true, unique: true, index: true },
     customerId: { type: String, index: true },
@@ -684,11 +718,11 @@ var OrderSchema = new Schema2(
     timestamps: true
   }
 );
-var Order_default = mongoose4.models.Order || mongoose4.model("Order", OrderSchema);
+var Order_default = import_mongoose4.default.models.Order || import_mongoose4.default.model("Order", OrderSchema);
 
 // server/models/Customer.ts
-import mongoose5, { Schema as Schema3 } from "mongoose";
-var CustomerAddressSchema = new Schema3({
+var import_mongoose5 = __toESM(require("mongoose"), 1);
+var CustomerAddressSchema = new import_mongoose5.Schema({
   street: { type: String, default: "" },
   city: { type: String, default: "" },
   state: { type: String, default: "" },
@@ -696,12 +730,12 @@ var CustomerAddressSchema = new Schema3({
   country: { type: String, default: "India" },
   isDefault: { type: Boolean, default: false }
 });
-var CustomerCartItemSchema = new Schema3({
+var CustomerCartItemSchema = new import_mongoose5.Schema({
   productId: { type: String, required: true },
   quantity: { type: Number, required: true, default: 1 },
   selectedSize: { type: String, default: "M" }
 });
-var CustomerSchema = new Schema3(
+var CustomerSchema = new import_mongoose5.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
@@ -719,7 +753,7 @@ var CustomerSchema = new Schema3(
     timestamps: true
   }
 );
-var Customer_default = mongoose5.models.Customer || mongoose5.model("Customer", CustomerSchema);
+var Customer_default = import_mongoose5.default.models.Customer || import_mongoose5.default.model("Customer", CustomerSchema);
 
 // server/controllers/orderController.ts
 var getOrders = async (_req, res) => {
@@ -880,7 +914,7 @@ var updateOrderStatus = async (req, res) => {
       return;
     }
     try {
-      const isObjectId = typeof id === "string" && mongoose6.Types.ObjectId.isValid(id) && id.length === 24;
+      const isObjectId = typeof id === "string" && import_mongoose6.default.Types.ObjectId.isValid(id) && id.length === 24;
       const query = isObjectId ? { $or: [{ id }, { _id: id }] } : { id };
       const updated = await Order_default.findOneAndUpdate(
         query,
@@ -923,7 +957,7 @@ var updateOrderStatus = async (req, res) => {
 };
 
 // server/middleware/customerAuth.ts
-import jwt2 from "jsonwebtoken";
+var import_jsonwebtoken2 = __toESM(require("jsonwebtoken"), 1);
 var JWT_SECRET2 = process.env.JWT_SECRET || "fashion_ecom_customer_jwt_secret_2026";
 var authenticateCustomer = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -936,7 +970,7 @@ var authenticateCustomer = (req, res, next) => {
   }
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt2.verify(token, JWT_SECRET2);
+    const decoded = import_jsonwebtoken2.default.verify(token, JWT_SECRET2);
     req.customer = decoded;
     next();
   } catch (error) {
@@ -948,7 +982,7 @@ var authenticateCustomer = (req, res, next) => {
 };
 
 // server/routes/orderRoutes.ts
-var router3 = Router3();
+var router3 = (0, import_express3.Router)();
 router3.post("/", createOrder);
 router3.get("/my-orders", authenticateCustomer, getCustomerOrders);
 router3.get("/", authenticateAdmin, getOrders);
@@ -959,10 +993,10 @@ router3.put("/admin/:id/status", authenticateAdmin, updateOrderStatus);
 var orderRoutes_default = router3;
 
 // server/routes/authRoutes.ts
-import { Router as Router4 } from "express";
+var import_express4 = require("express");
 
 // server/controllers/authController.ts
-import jwt3 from "jsonwebtoken";
+var import_jsonwebtoken3 = __toESM(require("jsonwebtoken"), 1);
 var JWT_SECRET3 = process.env.JWT_SECRET || "fashion_ecom_jwt_secret_key_2026";
 var ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@aurelie.com";
 var ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
@@ -983,7 +1017,7 @@ var login = (req, res) => {
       });
       return;
     }
-    const token = jwt3.sign(
+    const token = import_jsonwebtoken3.default.sign(
       {
         email: ADMIN_EMAIL,
         role: "ADMIN",
@@ -1017,7 +1051,7 @@ var verifyAuth = (req, res) => {
   }
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt3.verify(token, JWT_SECRET3);
+    const decoded = import_jsonwebtoken3.default.verify(token, JWT_SECRET3);
     res.status(200).json({
       success: true,
       user: decoded
@@ -1031,17 +1065,17 @@ var verifyAuth = (req, res) => {
 };
 
 // server/routes/authRoutes.ts
-var router4 = Router4();
+var router4 = (0, import_express4.Router)();
 router4.post("/login", login);
 router4.get("/me", verifyAuth);
 var authRoutes_default = router4;
 
 // server/routes/customerRoutes.ts
-import { Router as Router5 } from "express";
+var import_express5 = require("express");
 
 // server/controllers/customerController.ts
-import bcrypt from "bcryptjs";
-import jwt4 from "jsonwebtoken";
+var import_bcryptjs = __toESM(require("bcryptjs"), 1);
+var import_jsonwebtoken4 = __toESM(require("jsonwebtoken"), 1);
 var JWT_SECRET4 = process.env.JWT_SECRET || "fashion_ecom_customer_jwt_secret_2026";
 var CUSTOMERS_FILE = "customers.json";
 var getFileCustomers = () => {
@@ -1050,7 +1084,7 @@ var getFileCustomers = () => {
       id: "cust-001",
       name: "Ananya Sharma",
       email: "ananya@example.com",
-      passwordHash: bcrypt.hashSync("Password@123", 10),
+      passwordHash: import_bcryptjs.default.hashSync("Password@123", 10),
       phone: "+91 98765 43210",
       status: "active",
       ordersCount: 3,
@@ -1061,7 +1095,7 @@ var getFileCustomers = () => {
       id: "cust-002",
       name: "Rohan Verma",
       email: "rohan@example.com",
-      passwordHash: bcrypt.hashSync("Password@123", 10),
+      passwordHash: import_bcryptjs.default.hashSync("Password@123", 10),
       phone: "+91 98123 45678",
       status: "active",
       ordersCount: 1,
@@ -1071,7 +1105,7 @@ var getFileCustomers = () => {
   ]);
 };
 var generateCustomerToken = (customer) => {
-  return jwt4.sign(
+  return import_jsonwebtoken4.default.sign(
     { id: customer.id, email: customer.email, name: customer.name },
     JWT_SECRET4,
     { expiresIn: "30d" }
@@ -1104,7 +1138,7 @@ var registerCustomer = async (req, res) => {
         });
         return;
       }
-      const passwordHash = await bcrypt.hash(password, 10);
+      const passwordHash = await import_bcryptjs.default.hash(password, 10);
       const newCustomer = await Customer_default.create({
         name,
         email: cleanEmail,
@@ -1144,7 +1178,7 @@ var registerCustomer = async (req, res) => {
         });
         return;
       }
-      const passwordHash = await bcrypt.hash(password, 10);
+      const passwordHash = await import_bcryptjs.default.hash(password, 10);
       const newId = `cust-${Date.now()}`;
       const newCustObj = {
         id: newId,
@@ -1196,7 +1230,7 @@ var forgotPassword = async (req, res) => {
       const customer = await Customer_default.findOne({ email: cleanEmail });
       if (customer) {
         if (newPassword && newPassword.length >= 6) {
-          customer.passwordHash = await bcrypt.hash(newPassword, 10);
+          customer.passwordHash = await import_bcryptjs.default.hash(newPassword, 10);
           await customer.save();
           res.status(200).json({ success: true, message: "Password reset successfully! You can now sign in." });
           return;
@@ -1210,7 +1244,7 @@ var forgotPassword = async (req, res) => {
     const found = fileCustomers.find((c) => c.email.toLowerCase() === cleanEmail);
     if (found) {
       if (newPassword && newPassword.length >= 6) {
-        found.passwordHash = await bcrypt.hash(newPassword, 10);
+        found.passwordHash = await import_bcryptjs.default.hash(newPassword, 10);
         writeJSON(CUSTOMERS_FILE, fileCustomers);
         res.status(200).json({ success: true, message: "Password reset successfully! You can now sign in." });
         return;
@@ -1244,7 +1278,7 @@ var loginCustomer = async (req, res) => {
           });
           return;
         }
-        const isMatch2 = await bcrypt.compare(password, customer.passwordHash);
+        const isMatch2 = await import_bcryptjs.default.compare(password, customer.passwordHash);
         if (!isMatch2) {
           res.status(401).json({
             success: false,
@@ -1293,7 +1327,7 @@ var loginCustomer = async (req, res) => {
       });
       return;
     }
-    const isMatch = await bcrypt.compare(password, found.passwordHash);
+    const isMatch = await import_bcryptjs.default.compare(password, found.passwordHash);
     if (!isMatch && password !== "Password@123") {
       res.status(401).json({
         success: false,
@@ -1460,7 +1494,7 @@ var deleteCustomer = async (req, res) => {
 };
 
 // server/routes/customerRoutes.ts
-var router5 = Router5();
+var router5 = (0, import_express5.Router)();
 router5.post("/register", registerCustomer);
 router5.post("/login", loginCustomer);
 router5.post("/forgot-password", forgotPassword);
@@ -1473,13 +1507,13 @@ router5.delete("/admin/:id", authenticateAdmin, deleteCustomer);
 var customerRoutes_default = router5;
 
 // server/index.ts
-dotenv2.config();
-dotenv2.config({ path: path3.resolve(process.cwd(), ".env") });
+import_dotenv2.default.config();
+import_dotenv2.default.config({ path: import_path3.default.resolve(process.cwd(), ".env") });
 connectDB();
-var app = express();
+var app = (0, import_express6.default)();
 var PORT = process.env.PORT || 5e3;
 app.use(
-  cors({
+  (0, import_cors.default)({
     origin: (_origin, callback) => {
       callback(null, true);
     },
@@ -1488,8 +1522,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(import_express6.default.json({ limit: "50mb" }));
+app.use(import_express6.default.urlencoded({ limit: "50mb", extended: true }));
 app.use((req, _res, next) => {
   console.log(`[${(/* @__PURE__ */ new Date()).toISOString()}] ${req.method} ${req.url}`);
   next();
@@ -1525,6 +1559,3 @@ app.listen(portNum, "0.0.0.0", () => {
   console.log(`\u{1F4E1} API Health Check available at http://localhost:${portNum}/api/health`);
 });
 var server_default = app;
-export {
-  server_default as default
-};

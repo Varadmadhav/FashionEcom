@@ -3,7 +3,7 @@ services:
     name: fashionecom-backend
     env: node
     region: singapore
-    buildCommand: npm install
+    buildCommand: npm install && npm run build:server
     startCommand: npm start
     envVars:
       - key: MONGODB_URI
