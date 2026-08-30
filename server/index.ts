@@ -42,6 +42,15 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
+// Root route - Render health check hits /
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).json({
+    status: "ok",
+    service: "FashionEcom Backend API",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Health check endpoint
 app.get("/api/health", (_req: Request, res: Response) => {
   res.status(200).json({

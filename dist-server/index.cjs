@@ -1528,6 +1528,13 @@ app.use((req, _res, next) => {
   console.log(`[${(/* @__PURE__ */ new Date()).toISOString()}] ${req.method} ${req.url}`);
   next();
 });
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "FashionEcom Backend API",
+    timestamp: (/* @__PURE__ */ new Date()).toISOString()
+  });
+});
 app.get("/api/health", (_req, res) => {
   res.status(200).json({
     status: "ok",
