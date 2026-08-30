@@ -32,9 +32,6 @@ app.use(
   })
 );
 
-// Pre-flight OPTIONS handling
-app.options("*", cors() as any);
-
 // Body parsing middleware
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
