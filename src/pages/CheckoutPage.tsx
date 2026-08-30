@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
+import { API_BASE } from "@/utils/api";
 import CloudinaryImage from "@/components/CloudinaryImage";
 import {
   ShieldCheck,
@@ -85,7 +86,7 @@ export const CheckoutPage: React.FC = () => {
         paymentMethod,
       };
 
-      const res = await fetch("/api/orders", {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload),

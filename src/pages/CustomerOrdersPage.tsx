@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
+import { API_BASE } from "@/utils/api";
 import { useWishlist } from "@/context/WishlistContext";
 import { useProductStore } from "@/context/ProductStoreContext";
 import { Link, useSearchParams } from "react-router-dom";
@@ -73,7 +74,7 @@ export const CustomerOrdersPage: React.FC = () => {
       if (!isAuthenticated) return;
       try {
         const token = localStorage.getItem("aurelie_customer_jwt");
-        const res = await fetch("/api/orders/my-orders", {
+        const res = await fetch(`${API_BASE}/orders/my-orders`, {
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },

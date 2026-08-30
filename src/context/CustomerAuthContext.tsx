@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { API_BASE } from "@/utils/api";
 
 export interface CustomerUser {
   id: string;
@@ -60,7 +61,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const login = async (email: string, pass: string) => {
     try {
-      const res = await fetch("/api/customer/login", {
+      const res = await fetch(`${API_BASE}/customer/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: pass }),
@@ -86,7 +87,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const register = async (name: string, email: string, pass: string, phone?: string) => {
     try {
-      const res = await fetch("/api/customer/register", {
+      const res = await fetch(`${API_BASE}/customer/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password: pass, phone }),
@@ -112,7 +113,7 @@ export const CustomerAuthProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const forgotPassword = async (email: string, newPassword?: string) => {
     try {
-      const res = await fetch("/api/customer/forgot-password", {
+      const res = await fetch(`${API_BASE}/customer/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, newPassword }),

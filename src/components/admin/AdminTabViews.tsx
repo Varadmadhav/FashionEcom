@@ -23,7 +23,7 @@ import { useAdminAuth } from "@/context/AdminAuthContext";
 import { AdminUser } from "@/utils/adminJwt";
 import { useProductStore } from "@/context/ProductStoreContext";
 import { uploadToCloudinary, isCloudinaryConfigured } from "@/utils/cloudinary";
-import { uploadImageApi } from "@/utils/api";
+import { uploadImageApi, API_BASE } from "@/utils/api";
 import CloudinaryImage from "../CloudinaryImage";
 
 // ----------------------------------------------------
@@ -729,7 +729,7 @@ export function OrdersTabView() {
   const fetchOrders = async () => {
     try {
       const token = localStorage.getItem("aurelie_admin_jwt");
-      const res = await fetch("/api/orders", {
+      const res = await fetch(`${API_BASE}/orders`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
@@ -759,7 +759,7 @@ export function OrdersTabView() {
 
     try {
       const token = localStorage.getItem("aurelie_admin_jwt");
-      await fetch(`/api/orders/${id}/status`, {
+      await fetch(`${API_BASE}/orders/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -922,7 +922,7 @@ export function CustomersTabView() {
   const fetchCustomers = async () => {
     try {
       const token = localStorage.getItem("aurelie_admin_jwt");
-      const res = await fetch("/api/customer/admin/list", {
+      const res = await fetch(`${API_BASE}/customer/admin/list`, {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
@@ -948,7 +948,7 @@ export function CustomersTabView() {
     const nextStatus = currentStatus === "blocked" ? "active" : "blocked";
     try {
       const token = localStorage.getItem("aurelie_admin_jwt");
-      await fetch(`/api/customer/admin/${id}/status`, {
+      await fetch(`${API_BASE}/customer/admin/${id}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -966,7 +966,7 @@ export function CustomersTabView() {
     if (!window.confirm("Are you sure you want to delete this customer account?")) return;
     try {
       const token = localStorage.getItem("aurelie_admin_jwt");
-      await fetch(`/api/customer/admin/${id}`, {
+      await fetch(`${API_BASE}/customer/admin/${id}`, {
         method: "DELETE",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),

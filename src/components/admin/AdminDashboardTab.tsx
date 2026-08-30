@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { useProductStore } from "@/context/ProductStoreContext";
+import { API_BASE } from "@/utils/api";
 import CloudinaryImage from "../CloudinaryImage";
 
 export default function AdminDashboardTab() {
@@ -36,7 +37,7 @@ export default function AdminDashboardTab() {
         const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
         // 1. Fetch Orders
-        const ordRes = await fetch("/api/orders", { headers });
+        const ordRes = await fetch(`${API_BASE}/orders`, { headers });
         if (ordRes.ok) {
           const ordData = await ordRes.json();
           if (ordData.success && Array.isArray(ordData.data)) {
@@ -51,7 +52,7 @@ export default function AdminDashboardTab() {
         }
 
         // 2. Fetch Customers
-        const custRes = await fetch("/api/customer/admin/list", { headers });
+        const custRes = await fetch(`${API_BASE}/customer/admin/list`, { headers });
         if (custRes.ok) {
           const custData = await custRes.json();
           if (custData.success && Array.isArray(custData.data)) {

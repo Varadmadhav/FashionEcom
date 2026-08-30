@@ -1,6 +1,10 @@
 import { Product } from "@/data/products";
 
-const API_BASE = "/api";
+export const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}/api`
+  : import.meta.env.DEV
+  ? "/api"
+  : "https://fashionecom-backend-8s4s.onrender.com/api";
 
 export interface ApiResponse<T = any> {
   success: boolean;

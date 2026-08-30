@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import path from "path";
+import fs from "fs";
 import mongoose from "mongoose";
 import Product from "../models/Product";
 import { products as initialProducts } from "../../src/data/products";
@@ -22,15 +23,26 @@ async function seedMongoCatalog() {
   const count = await Product.countDocuments();
 
   if (count === 0) {
-    const seedData = initialProducts.map((p) => ({
+    let catalogSource = initialProducts;
+    const jsonPath = path.resolve(process.cwd(), "server", "data", "products.json");
+    if (catalogSource.length === 0 && fs.existsSync(jsonPath)) {
+      catalogSource = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+    }
+
+    const seedData = catalogSource.map((p: any) => ({
       ...p,
-      collectionName: p.collection || "Heritage",
-      newArrival: true,
+      collectionName: p.collection || p.collectionName || "Heritage",
+      newArrival: p.newArrival !== undefined ? p.newArrival : true,
       badges: p.badges && p.badges.length > 0 ? p.badges : ["New Arrival"],
       addedAt: p.addedAt ? new Date(p.addedAt) : new Date(),
     }));
-    await Product.insertMany(seedData);
-    console.log(`✅ Successfully seeded ${seedData.length} products into 'fashion_ecom.products' collection!`);
+
+    if (seedData.length > 0) {
+      await Product.insertMany(seedData);
+      console.log(`✅ Successfully seeded ${seedData.length} products into 'fashion_ecom.products' collection!`);
+    } else {
+      console.warn("⚠️ No products found to seed.");
+    }
   } else {
     console.log(`ℹ️ 'fashion_ecom.products' collection already has ${count} items.`);
   }

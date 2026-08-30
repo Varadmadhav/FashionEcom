@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useCustomerAuth } from "@/context/CustomerAuthContext";
+import { API_BASE } from "@/utils/api";
 
 export interface CartItem {
   id: string;
@@ -80,7 +81,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Sync from backend MongoDB if customer is signed in
     if (customer && token) {
-      fetch("/api/customer/cart", {
+      fetch(`${API_BASE}/customer/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => (res.ok ? res.json() : null))
@@ -107,7 +108,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     // Sync cart to backend MongoDB Atlas if logged in
     if (customer && token && !isInitialMount.current) {
-      fetch("/api/customer/cart", {
+      fetch(`${API_BASE}/customer/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

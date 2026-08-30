@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "server": "tsx server/index.ts",
+    "start": "tsx server/index.ts",
     "dev:server": "tsx watch server/index.ts",
     "dev:all": "concurrently -n \"SERVER,CLIENT\" -c \"cyan.bold,magenta.bold\" \"npm run dev:server\" \"npm run dev\"",
     "seed:cloudinary": "tsx server/scripts/seedCloudinary.ts",

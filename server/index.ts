@@ -19,14 +19,21 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS for frontend Vite application
+// Enable CORS for frontend application (Netlify, local dev, custom domains)
 app.use(
   cors({
-    origin: "*",
+    origin: (_origin, callback) => {
+      // Allow any requesting origin dynamically to avoid CORS preflight failures
+      callback(null, true);
+    },
+    credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Pre-flight OPTIONS handling
+app.options("*", cors() as any);
 
 // Body parsing middleware
 app.use(express.json({ limit: "50mb" }));
