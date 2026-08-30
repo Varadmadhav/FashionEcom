@@ -841,6 +841,7 @@ export function OrdersTabView() {
               <tr>
                 <th className="py-3.5 px-6 font-semibold">Order ID</th>
                 <th className="py-3.5 px-4 font-semibold">Customer</th>
+                <th className="py-3.5 px-4 font-semibold">Delivery Address</th>
                 <th className="py-3.5 px-4 font-semibold">Items</th>
                 <th className="py-3.5 px-4 font-semibold">Total</th>
                 <th className="py-3.5 px-4 font-semibold">Payment</th>
@@ -856,6 +857,12 @@ export function OrdersTabView() {
                   ? ord.items.map((i: any) => `${i.name} (${i.size}) x${i.quantity}`).join(", ")
                   : ord.items || "1 Item";
 
+                const addr = ord.shippingAddress;
+                const addressLine = addr
+                  ? [addr.street, addr.city, addr.state, addr.pincode].filter(Boolean).join(", ")
+                  : ord.phone || "—";
+                const addrPhone = addr?.phone || ord.phone || "";
+
                 return (
                   <tr key={id} className="hover:bg-brand-bg/40 transition-colors">
                     <td className="py-4 px-6 font-mono font-semibold text-brand-espresso">
@@ -864,6 +871,18 @@ export function OrdersTabView() {
                     <td className="py-4 px-4">
                       <p className="font-medium text-brand-espresso">{custName}</p>
                       <p className="text-[10px] text-brand-muted">{ord.email}</p>
+                      {addrPhone && <p className="text-[10px] text-brand-muted">📞 {addrPhone}</p>}
+                    </td>
+                    <td className="py-4 px-4 max-w-[200px]">
+                      {addr ? (
+                        <div className="text-[11px] text-brand-espresso leading-relaxed">
+                          <p className="font-medium">{addr.fullName || custName}</p>
+                          <p className="text-brand-muted">{addr.street}</p>
+                          <p className="text-brand-muted">{addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.pincode}</p>
+                        </div>
+                      ) : (
+                        <span className="text-brand-muted text-[11px]">—</span>
+                      )}
                     </td>
                     <td className="py-4 px-4 text-brand-muted max-w-xs truncate font-mono text-[11px]">
                       {itemsSummary}
