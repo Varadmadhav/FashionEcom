@@ -4,7 +4,7 @@ export const API_BASE = import.meta.env.VITE_API_URL
   ? `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}/api`
   : import.meta.env.DEV
   ? "/api"
-  : "https://fashionecom-backend-8s4m.onrender.com/api";
+  : "https://fashionecom-backend-9ykn.onrender.com/api";
 
 export interface ApiResponse<T = any> {
   success: boolean;
