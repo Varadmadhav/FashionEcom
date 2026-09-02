@@ -13,8 +13,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Tag,
+  Sparkles,
+  Flame,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
 } from "lucide-react";
 import CloudinaryImage from "@/components/CloudinaryImage";
+import DirectPricingBreakdown from "@/components/pdp/DirectPricingBreakdown";
+import FactoryFootage from "@/components/pdp/FactoryFootage";
+import SocialImpactBanner from "@/components/pdp/SocialImpactBanner";
+import ProductReviews from "@/components/pdp/ProductReviews";
 
 const ProductDetailPage = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -112,12 +121,12 @@ const ProductDetailPage = () => {
           <span className="text-brand-espresso font-semibold">{product.name}</span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 items-start">
           
           {/* Left Column: Smart Uncropped Main Image Viewer + Gallery Thumbnails Below */}
           <div className="lg:col-span-7 flex flex-col space-y-4">
             
-            {/* Main Image Container (Uncropped object-contain Image Viewer with Navigation Arrows) */}
+            {/* Main Image Container */}
             <div className="relative w-full h-[460px] sm:h-[520px] md:h-[540px] bg-[#FAF7F2] rounded-2xl border border-brand-border/40 overflow-hidden flex items-center justify-center p-3 shadow-xs group">
               <CloudinaryImage
                 key={selectedImage}
@@ -185,9 +194,14 @@ const ProductDetailPage = () => {
           {/* Right Column: Product Details & Purchase Actions */}
           <div className="lg:col-span-5 flex flex-col space-y-5 bg-white p-6 sm:p-8 rounded-3xl border border-brand-border/40 shadow-xs">
             <div>
-              <span className="text-brand-muted uppercase tracking-widest text-[11px] font-semibold">
-                {product.collection || "Heritage Collection"}
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-brand-muted uppercase tracking-widest text-[11px] font-semibold">
+                  {product.collection || "Heritage Collection"}
+                </span>
+                <span className="bg-emerald-50 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                  In Stock • Direct Dispatch
+                </span>
+              </div>
               <h1 className="font-serif text-3xl sm:text-4xl text-brand-espresso mt-1 font-normal">
                 {product.name}
               </h1>
@@ -214,6 +228,25 @@ const ProductDetailPage = () => {
               )}
             </div>
 
+            {/* High Converting 6 Kurtis in ₹499 Bragging Banner */}
+            <div className="bg-gradient-to-r from-amber-100/90 via-orange-50 to-amber-100/80 border-2 border-amber-400/80 rounded-2xl p-4 shadow-sm animate-pulse-subtle">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 font-bold text-xs text-brand-espresso">
+                  <span className="bg-brand-espresso text-amber-300 text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+                    <Flame size={11} className="fill-amber-300 text-amber-300" />
+                    <span>MEGA DEAL</span>
+                  </span>
+                  <span className="text-sm font-serif">6 Kurtis in ₹499</span>
+                </div>
+                <span className="font-mono text-xs font-bold text-amber-900 bg-amber-200/90 px-2.5 py-0.5 rounded-lg border border-amber-300">
+                  ₹83 / Kurti
+                </span>
+              </div>
+              <p className="text-xs text-brand-fg font-medium mt-1.5 leading-snug">
+                Mix & match any 6 kurtis from our store. Direct factory bundle discount applies automatically at checkout!
+              </p>
+            </div>
+
             <p className="text-brand-fg text-xs leading-relaxed">
               {product.description}
             </p>
@@ -224,7 +257,7 @@ const ProductDetailPage = () => {
                 <span className="text-brand-espresso font-semibold uppercase tracking-wider">
                   Select Size
                 </span>
-                <span className="text-brand-muted text-[11px]">3 for ₹999 Bundle Offer Active</span>
+                <span className="text-amber-800 text-[11px] font-bold">🔥 6 for ₹499 Mega Combo Active</span>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
@@ -255,7 +288,7 @@ const ProductDetailPage = () => {
                 <span>
                   {!product.availability || product.stockQuantity === 0
                     ? "Out of Stock"
-                    : "Add to Bag"}
+                    : "Add to Bag (6 for ₹499 Offer)"}
                 </span>
               </button>
 
@@ -270,6 +303,22 @@ const ProductDetailPage = () => {
                 <Heart className={`w-4 h-4 ${inWishlist ? "fill-amber-800 text-amber-800" : ""}`} />
                 <span>{inWishlist ? "Added to Wishlist" : "Add to Wishlist"}</span>
               </button>
+            </div>
+
+            {/* Trust Badges Strip */}
+            <div className="grid grid-cols-3 gap-2 pt-3 border-t border-brand-border/30 text-center text-[10px] text-brand-muted">
+              <div className="flex flex-col items-center">
+                <Truck size={16} className="text-amber-800 mb-1" />
+                <span>Free Express Shipping</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <RotateCcw size={16} className="text-amber-800 mb-1" />
+                <span>7-Day Easy Returns</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <ShieldCheck size={16} className="text-emerald-700 mb-1" />
+                <span>COD Available</span>
+              </div>
             </div>
 
             {/* Accordion Details */}
@@ -293,6 +342,18 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
+
+        {/* 1. Customer Reviews & Ratings (Meesho / Myntra Style) */}
+        <ProductReviews product={product} />
+
+        {/* 2. How We Deliver at Such Low Pricing */}
+        <DirectPricingBreakdown />
+
+        {/* 3. Real Footage from Our Factory */}
+        <FactoryFootage />
+
+        {/* 4. 10% of Your Order to Women's Education */}
+        <SocialImpactBanner />
 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (

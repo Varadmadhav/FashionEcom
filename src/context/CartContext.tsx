@@ -118,11 +118,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }).catch(() => {});
     }
 
-    // Trigger 3-for-999 celebration modal when totalCount increases to >= 3
+    // Trigger 6-for-499 celebration modal when totalCount increases to >= 6
     if (
       !isInitialMount.current &&
-      totalCount >= 3 &&
-      prevCountRef.current < 3
+      totalCount >= 6 &&
+      prevCountRef.current < 6
     ) {
       setShowBurstModal(true);
     }
@@ -133,41 +133,34 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addToCart = (newItem: Omit<CartItem, "quantity">, quantity = 1) => {
     const validId = String(newItem.id || `item-${Date.now()}`);
-    const validSize = String(newItem.size || "M");
-    const validName = String(newItem.name || "Luxury Apparel Item");
-    const validPrice = Number(newItem.price || 0);
-    const validImage = newItem.image && typeof newItem.image === "string" && newItem.image.trim() !== "" ? newItem.image : DEFAULT_IMAGE;
+    const validPrice = Number(newItem.price) || 0;
+    const sanitizedItem: Omit<CartItem, "quantity"> = {
+      ...newItem,
+      id: validId,
+      price: validPrice,
+    };
 
-    setCartItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (i) => i.id === validId && i.size === validSize
+    setCartItems((prevItems) => {
+      const existingItemIndex = prevItems.findIndex(
+        (item) => item.id === validId && item.size === sanitizedItem.size
       );
 
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
-        return sanitizeCartItems(updated);
+      if (existingItemIndex > -1) {
+        const updated = [...prevItems];
+        updated[existingItemIndex].quantity += quantity;
+        return updated;
       }
 
-      return sanitizeCartItems([
-        ...prev,
-        {
-          id: validId,
-          name: validName,
-          price: validPrice,
-          size: validSize,
-          color: newItem.color || "Natural",
-          image: validImage,
-          quantity,
-        },
-      ]);
+      return [...prevItems, { ...sanitizedItem, quantity }];
     });
 
     setIsCartOpen(true);
   };
 
   const removeFromCart = (id: string, size: string) => {
-    setCartItems((prev) => prev.filter((i) => !(i.id === id && i.size === size)));
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => !(item.id === id && item.size === size))
+    );
   };
 
   const updateQuantity = (id: string, size: string, quantity: number) => {
@@ -176,8 +169,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    setCartItems((prev) =>
-      prev.map((i) => (i.id === id && i.size === size ? { ...i, quantity } : i))
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id && item.size === size
+          ? { ...item, quantity }
+          : item
+      )
     );
   };
 
@@ -187,21 +184,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(currentKey);
   };
 
-  // Cart Counts & 3-for-999 Bundle Calculations
+  // Cart Counts & 6-for-499 Bundle Calculations
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
   // Original un-discounted total sum
   const originalTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  // Calculate 3-for-₹999 bundle logic
-  const fullSetsOfThree = Math.floor(cartCount / 3);
-  const remainingItemsCount = cartCount % 3;
+  // Calculate 6-for-₹499 bundle logic
+  const fullSetsOfSix = Math.floor(cartCount / 6);
+  const remainingItemsCount = cartCount % 6;
 
   let computedTotal = 0;
   let computedDiscount = 0;
 
-  if (fullSetsOfThree > 0) {
-    const bundleBasePrice = fullSetsOfThree * 999;
+  if (fullSetsOfSix > 0) {
+    const bundleBasePrice = fullSetsOfSix * 499;
 
     const allSingleItems: number[] = [];
     cartItems.forEach((item) => {
@@ -212,8 +209,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     allSingleItems.sort((a, b) => b - a);
 
-    const itemsInBundles = allSingleItems.slice(0, fullSetsOfThree * 3);
-    const unbundledItems = allSingleItems.slice(fullSetsOfThree * 3);
+    const itemsInBundles = allSingleItems.slice(0, fullSetsOfSix * 6);
+    const unbundledItems = allSingleItems.slice(fullSetsOfSix * 6);
 
     const unbundledTotal = unbundledItems.reduce((sum, p) => sum + p, 0);
     const bundledOriginalSum = itemsInBundles.reduce((sum, p) => sum + p, 0);
@@ -225,7 +222,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     computedDiscount = 0;
   }
 
-  const isOfferUnlocked = fullSetsOfThree > 0;
+  const isOfferUnlocked = fullSetsOfSix > 0;
 
   return (
     <CartContext.Provider

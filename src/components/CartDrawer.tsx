@@ -40,10 +40,10 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  // XYXX 3-for-999 Offer Progress Bar Calculation
-  const itemsInSet = cartCount % 3;
-  const progressPercent = isOfferUnlocked && itemsInSet === 0 ? 100 : (itemsInSet / 3) * 100;
-  const itemsNeeded = itemsInSet === 0 ? (cartCount === 0 ? 3 : 0) : 3 - itemsInSet;
+  // 6-for-499 Mega Combo Offer Progress Bar Calculation
+  const itemsInSet = cartCount % 6;
+  const progressPercent = isOfferUnlocked && itemsInSet === 0 ? 100 : (itemsInSet / 6) * 100;
+  const itemsNeeded = itemsInSet === 0 ? (cartCount === 0 ? 6 : 0) : 6 - itemsInSet;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -72,15 +72,15 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {/* XYXX.com Style Offer Progress Banner */}
+        {/* 6-for-499 Mega Combo Progress Banner */}
         <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 p-4 border-b border-amber-200/60">
           <div className="flex items-center justify-between text-xs mb-1.5 font-semibold text-brand-espresso">
             <div className="flex items-center space-x-1.5">
               <Tag size={13} className="text-amber-700" />
               <span>
                 {isOfferUnlocked && itemsNeeded === 0
-                  ? "3 FOR ₹999 BUNDLE OFFER UNLOCKED!"
-                  : `Add ${itemsNeeded} more item${itemsNeeded > 1 ? "s" : ""} for 3 for ₹999 offer!`}
+                  ? "🔥 6 FOR ₹499 MEGA COMBO UNLOCKED!"
+                  : `Add ${itemsNeeded} more item${itemsNeeded > 1 ? "s" : ""} for 6 for ₹499 Mega Deal!`}
               </span>
             </div>
             <span className="text-[10px] text-amber-700 font-mono font-bold">
@@ -186,7 +186,7 @@ export default function CartDrawer() {
                 <div className="flex items-center justify-between text-emerald-700 font-semibold">
                   <span className="flex items-center space-x-1">
                     <Tag size={12} />
-                    <span>3 for ₹999 Savings</span>
+                    <span>6 for ₹499 Combo Savings</span>
                   </span>
                   <span>-₹{formatPrice(bundleDiscount)}</span>
                 </div>

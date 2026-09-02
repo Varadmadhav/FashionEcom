@@ -74,18 +74,18 @@ export const OfferBurstModal: React.FC = () => {
             {/* Subtitle Divider */}
             <div className="flex items-center justify-center space-x-3 text-[11px] uppercase tracking-[0.25em] font-semibold text-[#A67C52]">
               <span className="w-6 h-[1px] bg-[#A67C52]/40" />
-              <span>EXCLUSIVE BUNDLE OFFER</span>
+              <span>MEGA FACTORY COMBO OFFER</span>
               <span className="w-6 h-[1px] bg-[#A67C52]/40" />
             </div>
 
             {/* Main Heading */}
             <h2 className="font-serif text-3xl sm:text-4xl font-normal text-[#2B2421]">
-              3 Items for Just ₹999!
+              6 Kurtis for Just ₹499!
             </h2>
 
             {/* Subheading */}
             <p className="text-xs text-[#6B5E57] max-w-sm mx-auto leading-relaxed">
-              Congratulations! You just unlocked our exclusive 3-item bundle pricing offer.
+              Congratulations! You just unlocked our direct-factory 6-item mega combo deal.
             </p>
 
             {/* Savings Badge Pill */}

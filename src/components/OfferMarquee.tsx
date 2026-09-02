@@ -7,9 +7,9 @@ export const OfferMarquee: React.FC = () => {
     {
       node: (
         <span className="flex items-center space-x-3 text-xs uppercase tracking-[0.25em] font-medium text-[#F7F3ED]">
-          <span className="font-serif font-bold italic text-amber-300">EXCLUSIVE BUNDLE</span>
+          <span className="font-serif font-bold italic text-amber-300">🔥 MEGA FACTORY DEAL</span>
           <span className="text-amber-400/50">•</span>
-          <span className="font-sans font-bold text-white tracking-widest">BUY 3 ITEMS FOR JUST ₹999!</span>
+          <span className="font-sans font-bold text-white tracking-widest">BUY ANY 6 KURTIS FOR JUST ₹499!</span>
         </span>
       ),
     },
@@ -17,7 +17,7 @@ export const OfferMarquee: React.FC = () => {
       node: (
         <span className="flex items-center space-x-3 text-xs uppercase tracking-[0.25em] font-medium text-[#F7F3ED]">
           <span className="text-amber-400/50">•</span>
-          <span className="font-sans font-semibold text-amber-200">AUTOMATIC DISCOUNT AT CHECKOUT</span>
+          <span className="font-sans font-semibold text-amber-200">DIRECT FROM MANUFACTURING FLOOR • ZERO MIDDLEMEN</span>
         </span>
       ),
     },
@@ -25,7 +25,7 @@ export const OfferMarquee: React.FC = () => {
       node: (
         <span className="flex items-center space-x-3 text-xs uppercase tracking-[0.25em] font-medium text-[#F7F3ED]">
           <span className="text-amber-400/50">•</span>
-          <span className="font-sans font-medium text-[#F7F3ED]/90">FREE EXPRESS SHIPPING ON ALL ORDERS</span>
+          <span className="font-sans font-medium text-[#F7F3ED]/90">AUTOMATIC COMBO DISCOUNT AT CHECKOUT</span>
         </span>
       ),
     },
@@ -34,7 +34,7 @@ export const OfferMarquee: React.FC = () => {
         <span className="flex items-center space-x-3 text-xs uppercase tracking-[0.25em] font-medium text-[#F7F3ED]">
           <span className="font-serif italic font-bold tracking-[0.3em] text-amber-300">A U R E L I E</span>
           <span className="text-amber-400/50">•</span>
-          <span className="font-sans font-medium text-[#F7F3ED]/90">CRAFTED LUXURY APPAREL</span>
+          <span className="font-sans font-medium text-[#F7F3ED]/90">PREMIUM PURE COTTON & SILK BLEND KURTIS</span>
         </span>
       ),
     },

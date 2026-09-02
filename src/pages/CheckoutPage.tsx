@@ -359,7 +359,7 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex justify-between text-emerald-700 font-bold bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
                     <span className="flex items-center space-x-1">
                       <Tag size={14} />
-                      <span>3 for ₹999 Bundle Offer</span>
+                      <span>6 for ₹499 Mega Bundle Offer</span>
                     </span>
                     <span>-₹{bundleDiscount.toLocaleString("en-IN")}</span>
                   </div>
