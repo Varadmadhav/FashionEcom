@@ -433,7 +433,7 @@ export const updateCustomerCart = async (
       const customer = await Customer.findByIdAndUpdate(
         custId,
         { cart: cart || [] },
-        { new: true }
+        { returnDocument: "after" }
       );
       if (customer) {
         res.status(200).json({ success: true, cart: customer.cart });
@@ -486,7 +486,7 @@ export const toggleCustomerStatus = async (req: Request, res: Response): Promise
     const { status } = req.body;
 
     try {
-      const customer = await Customer.findByIdAndUpdate(id, { status }, { new: true });
+      const customer = await Customer.findByIdAndUpdate(id, { status }, { returnDocument: "after" });
       if (customer) {
         res.status(200).json({ success: true, data: customer });
         return;

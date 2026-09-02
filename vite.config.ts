@@ -25,5 +25,10 @@ export default defineConfig({
         secure: false,
       },
     },
+    watch: {
+      // Exclude server-side files from Vite's HMR watcher
+      // Otherwise every cart sync write to customers.json triggers an infinite reload loop
+      ignored: ["**/server/**", "**/dist-server/**", "**/node_modules/**"],
+    },
   },
 });
